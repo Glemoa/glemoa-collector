@@ -1,0 +1,19 @@
+server.port: 8080
+
+spring:
+  application:
+    name: collector-service
+  datasource:
+    # MySQL 드라이버 지정
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # 도커 컨테이너로 3306 포트로 접속할 수 있도록 띄어놓은 db와 연결
+    URL: jdbc:mysql://127.0.0.1:3306/dc
+    username: root
+    password: yourpassword
+  jpa:
+    # 데이터 베이스 플랫폼에는 MySQL DB를 사용할 것이기 때문에 이렇게 설정
+    database-platform: org.hibernate.dialect.MySQLDialect
+    open-in-view: false
+    show-sql: true
+    hibernate:
+      ddl-auto: create
