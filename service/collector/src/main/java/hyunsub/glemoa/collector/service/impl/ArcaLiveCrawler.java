@@ -17,7 +17,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Component
+//@Component
 public class ArcaLiveCrawler implements ICrawler {
 
     private final String url = "https://arca.live/b/live?p=1";
@@ -25,6 +25,11 @@ public class ArcaLiveCrawler implements ICrawler {
 
     @Override
     public List<Post> crawl() {
+        return crawl(1);
+    }
+
+    @Override
+    public List<Post> crawl(int pageCount) {
         List<Post> posts = new ArrayList<>();
         try {
             Document doc = Jsoup.connect(url)

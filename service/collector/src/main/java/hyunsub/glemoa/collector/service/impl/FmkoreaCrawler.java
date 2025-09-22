@@ -15,13 +15,18 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
+//@Component
 public class FmkoreaCrawler implements ICrawler {
 
     private final String url = "https://www.fmkorea.com/index.php?mid=best&listStyle=list&page=1";
 
     @Override
     public List<Post> crawl() {
+        return crawl(1);
+    }
+
+    @Override
+    public List<Post> crawl(int pageCount) {
         List<Post> posts = new ArrayList<>();
         try {
             Document doc = Jsoup.connect(url)

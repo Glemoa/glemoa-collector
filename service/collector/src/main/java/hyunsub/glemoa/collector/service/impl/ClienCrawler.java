@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Component
+//@Component
 public class ClienCrawler implements ICrawler {
 
     private final String url = "https://clien.net/service/board/park?&od=T31&category=0&po=0";
@@ -23,6 +23,11 @@ public class ClienCrawler implements ICrawler {
 
     @Override
     public List<Post> crawl() {
+        return crawl(1);
+    }
+
+    @Override
+    public List<Post> crawl(int pageCount) {
         List<Post> posts = new ArrayList<>();
         try {
             Document doc = Jsoup.connect(url)

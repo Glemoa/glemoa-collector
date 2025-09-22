@@ -2,13 +2,16 @@ package hyunsub.glemoa.collector.common;
 
 import hyunsub.glemoa.collector.repository.PostRepository;
 import hyunsub.glemoa.collector.service.ICrawler;
+import hyunsub.glemoa.collector.service.impl.*;
 import lombok.RequiredArgsConstructor;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import hyunsub.glemoa.collector.entity.Post;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +20,10 @@ import org.springframework.stereotype.Component;
 public class WebCollectorScheduler {
     private final List<ICrawler> crawlers;
     private final PostRepository postRepository;
+
+    // 💡 새로 만든 설정 클래스를 주입받습니다.
+    private final CrawlerProperties crawlerProperties;
+
 
     // 예시: 매 10초마다 크롤링을 실행
     @Scheduled(fixedRate = 10, timeUnit = TimeUnit.SECONDS)
@@ -39,9 +46,35 @@ public class WebCollectorScheduler {
         List<List<Post>> allPosts = crawlers.parallelStream()
                 .map(crawler -> {
                     try {
-                        // 무작위 지연 시간 추가 (1초 ~ 5초)
-                        int randomDelay = (int)(Math.random() * 4000) + 1000;
-                        Thread.sleep(randomDelay);
+                        // 💡 크롤러의 클래스 이름으로 페이지 수를 가져옵니다.
+                        String crawlerName = crawler.getClass().getSimpleName().replace("Crawler", "").toLowerCase();
+                        int pageCount = crawlerProperties.getPages().getOrDefault(crawlerName, 1);
+                        System.out.println(crawler.getClass().getSimpleName() + " 크롤러를 " + pageCount + "페이지까지 실행합니다.");
+                        Thread.sleep((int)(Math.random() * 4000) + 1000);
+
+                        // ... (기존 크롤링 로직) ...
+                        if (crawler instanceof PpomppuCrawler) {
+                            return ((PpomppuCrawler) crawler).crawl(pageCount);
+                        } else if (crawler instanceof FmkoreaCrawler) {
+                            return ((FmkoreaCrawler) crawler).crawl(pageCount);
+                        } else if (crawler instanceof MlbparkCrawler) {
+                            return ((MlbparkCrawler) crawler).crawl(pageCount);
+                        } else if (crawler instanceof ArcaLiveCrawler) {
+                            return ((ArcaLiveCrawler) crawler).crawl(pageCount);
+                        } else if (crawler instanceof TheqooCrawler) {
+                            return ((TheqooCrawler) crawler).crawl(pageCount);
+                        } else if (crawler instanceof BobaedreamCrawler) {
+                            return ((BobaedreamCrawler) crawler).crawl(pageCount);
+                        } else if (crawler instanceof ClienCrawler) {
+                            return ((ClienCrawler) crawler).crawl(pageCount);
+                        } else if (crawler instanceof EtolandCrawler) {
+                            return ((EtolandCrawler) crawler).crawl(pageCount);
+                        } else if (crawler instanceof HumorunivCrawler) {
+                            return ((HumorunivCrawler) crawler).crawl(pageCount);
+                        } else if (crawler instanceof DcInsideCrawler) {
+                            return ((DcInsideCrawler) crawler).crawl(pageCount);
+                        }
+
                         return crawler.crawl();
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();

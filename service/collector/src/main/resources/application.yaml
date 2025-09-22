@@ -17,3 +17,19 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: create
+
+crawler:
+  pages:
+    ppomppu: 3
+    fmkorea: 2
+    dcinside: 2
+    clien: 2
+    ruliweb: 3
+    theqoo: 2
+    etoland: 1
+    humoruniv: 1
+    bobaedream: 2
+    mlbpark: 2
+    arcalive: 3
+    inven: 2
+    natepann: 1

@@ -18,13 +18,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Component
+//@Component
 public class TheqooCrawler implements ICrawler {
 
     private final String url = "https://theqoo.net/hot?page=1";
 
     @Override
     public List<Post> crawl() {
+        return crawl(1);
+    }
+
+    @Override
+    public List<Post> crawl(int pageCount) {
         List<Post> posts = new ArrayList<>();
         try {
             Document doc = Jsoup.connect(url)

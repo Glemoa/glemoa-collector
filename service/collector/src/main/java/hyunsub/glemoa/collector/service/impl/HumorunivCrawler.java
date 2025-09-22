@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-@Component
+//@Component
 public class HumorunivCrawler implements ICrawler {
 
     private final String url = "https://web.humoruniv.com/board/humor/list.html?table=pds";
@@ -24,6 +24,11 @@ public class HumorunivCrawler implements ICrawler {
 
     @Override
     public List<Post> crawl() {
+        return crawl(1);
+    }
+
+    @Override
+    public List<Post> crawl(int pageCount) {
         List<Post> posts = new ArrayList<>();
         try {
             Document doc = Jsoup.connect(url)
