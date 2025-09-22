@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-//@Component
+@Component
 public class TheqooCrawler implements ICrawler {
 
     private final String url = "https://theqoo.net/hot?page=1";

@@ -38,8 +38,15 @@ public class WebCollectorScheduler {
         // 여러 스레드를 사용하여 병렬로 크롤링을 실행할 수 있습니다.
         List<List<Post>> allPosts = crawlers.parallelStream()
                 .map(crawler -> {
-                    System.out.println(crawler.getClass().getSimpleName() + " 크롤러를 실행합니다.");
-                    return crawler.crawl();
+                    try {
+                        // 무작위 지연 시간 추가 (1초 ~ 5초)
+                        int randomDelay = (int)(Math.random() * 4000) + 1000;
+                        Thread.sleep(randomDelay);
+                        return crawler.crawl();
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        throw new RuntimeException("크롤링 중 스레드 중단", e);
+                    }
                 })
                 .collect(Collectors.toList());
 

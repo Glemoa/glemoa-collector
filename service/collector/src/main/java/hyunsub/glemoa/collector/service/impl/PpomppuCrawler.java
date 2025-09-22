@@ -20,7 +20,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-//@Component
+@Component
 public class PpomppuCrawler implements ICrawler {
 
     private final String url = "https://ppomppu.co.kr/hot.php?page=1&category=999";

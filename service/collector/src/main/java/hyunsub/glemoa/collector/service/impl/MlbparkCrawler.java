@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-//@Component
+@Component
 public class MlbparkCrawler implements ICrawler {
 
     private final String url = "https://mlbpark.donga.com/mp/b.php?p=1&m=list&b=bullpen&query=&select=&subquery=&subselect=&user=";

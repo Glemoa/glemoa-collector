@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-//@Component
+@Component
 public class HumorunivCrawler implements ICrawler {
 
     private final String url = "https://web.humoruniv.com/board/humor/list.html?table=pds";

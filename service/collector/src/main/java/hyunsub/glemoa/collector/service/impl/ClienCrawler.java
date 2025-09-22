@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-//@Component
+@Component
 public class ClienCrawler implements ICrawler {
 
     private final String url = "https://clien.net/service/board/park?&od=T31&category=0&po=0";

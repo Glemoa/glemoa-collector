@@ -20,7 +20,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-//@Component
+@Component
 public class RuliwebCrawler implements ICrawler {
 
     private final String url = "https://bbs.ruliweb.com/best/all/now";
