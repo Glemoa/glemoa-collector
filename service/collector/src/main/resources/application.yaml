@@ -7,7 +7,7 @@ spring:
     # MySQL 드라이버 지정
     driver-class-name: com.mysql.cj.jdbc.Driver
     # 도커 컨테이너로 3306 포트로 접속할 수 있도록 띄어놓은 db와 연결
-    URL: jdbc:mysql://127.0.0.1:3306/dc
+    URL: jdbc:mysql://127.0.0.1:3306/Glemoa
     username: root
     password: yourpassword
   jpa:

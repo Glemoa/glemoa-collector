@@ -45,13 +45,23 @@ public class PpomppuCrawler implements ICrawler {
                         continue;
                     }
 
+//                    // 게시글 제목과 링크 추출
+//                    Element titleElement = postElement.selectFirst("a.baseList-title");
+//                    if (titleElement == null) {
+//                        continue;
+//                    }
+//                    String title = titleElement.text();
+
                     // 게시글 제목과 링크 추출
-                    Element titleElement = postElement.selectFirst("a.baseList-title");
-                    if (titleElement == null) {
+                    Elements titleElements = postElement.select("a.baseList-title");
+                    if (titleElements.size() < 2) {
+                        // 제목이 없거나 구조가 다른 경우
                         continue;
                     }
-                    String title = titleElement.text();
-                    String link = titleElement.attr("href");
+
+                    // 두 번째 <a> 태그에서 제목 텍스트를 가져옵니다.
+                    String title = titleElements.get(1).text();
+                    String link = titleElements.attr("href");
 
                     // 게시글 고유 번호(no) 추출
                     Matcher matcher = noPattern.matcher(link);

@@ -14,7 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-//@Component
+@Component
 public class DcInsideCrawler implements ICrawler {
     private final String url = "https://gall.dcinside.com/board/lists/?id=dcbest&page=1&_dcbest=6";
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -62,7 +62,7 @@ public class DcInsideCrawler implements ICrawler {
                         .build();
 
                 posts.add(post);
-                System.out.println(post.toString());
+//                System.out.println(post.toString());
             }
         } catch (IOException e) {
             e.printStackTrace();
