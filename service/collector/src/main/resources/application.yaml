@@ -19,17 +19,31 @@ spring:
       ddl-auto: create
 
 crawler:
-  pages:
+  initial-pages:
+    ppomppu: 30
+    fmkorea: 30
+    dcinside: 30
+    clien: 30
+    ruliweb: 30
+    theqoo: 30
+    etoland: 30
+    humoruniv: 30
+    bobaedream: 30
+    mlbpark: 30
+    arcalive: 5
+    inven: 30
+    natepann: 30
+  scheduled-pages:
     ppomppu: 3
-    fmkorea: 2
-    dcinside: 2
-    clien: 2
+    fmkorea: 3
+    dcinside: 3
+    clien: 3
     ruliweb: 3
-    theqoo: 2
-    etoland: 1
-    humoruniv: 1
-    bobaedream: 2
-    mlbpark: 2
+    theqoo: 3
+    etoland: 3
+    humoruniv: 3
+    bobaedream: 3
+    mlbpark: 3
     arcalive: 3
-    inven: 2
-    natepann: 1
+    inven: 3
+    natepann: 3

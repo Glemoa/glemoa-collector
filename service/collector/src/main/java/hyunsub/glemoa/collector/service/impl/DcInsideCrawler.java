@@ -14,9 +14,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
+//@Component
 public class DcInsideCrawler implements ICrawler {
-    private final String baseUrl = "https://gall.dcinside.com/board/lists/?id=dcbest&page=%d&_dcbest=6";
+    private final String baseUrl = "https://gall.dcinside.com/board/lists/?id=dcbest&list_num=100&sort_type=N&search_head=6&page=%d";
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override

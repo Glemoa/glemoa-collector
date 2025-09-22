@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 //@Component
 public class HumorunivCrawler implements ICrawler {
 
-    private final String url = "https://web.humoruniv.com/board/humor/list.html?table=pds";
+    private final String url = "https://web.humoruniv.com/board/humor/list.html?table=pds&pg=0";
     private final Pattern sourceIdPattern = Pattern.compile("id=\"li_chk_pds-(\\d+)\"");
 
     @Override

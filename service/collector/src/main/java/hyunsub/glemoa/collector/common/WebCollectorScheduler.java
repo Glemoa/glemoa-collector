@@ -24,10 +24,17 @@ public class WebCollectorScheduler {
     // 💡 새로 만든 설정 클래스를 주입받습니다.
     private final CrawlerProperties crawlerProperties;
 
+    // 처음 실행인지 확인하는 트리거 변수
+    private boolean isInitialRun = true;
 
     // 예시: 매 10초마다 크롤링을 실행
     @Scheduled(fixedRate = 10, timeUnit = TimeUnit.SECONDS)
     public void runCrawlingJob() {
+        // 데이터베이스가 비어있는지 확인하여 최초 실행 여부 결정
+        if (isInitialRun && postRepository.count() > 0) {
+            isInitialRun = false;
+        }
+
         // 무작위 지연 시간(Random Delay) 추가하여 봇 감지 회피
         Random random = new Random();
 
@@ -48,7 +55,10 @@ public class WebCollectorScheduler {
                     try {
                         // 💡 크롤러의 클래스 이름으로 페이지 수를 가져옵니다.
                         String crawlerName = crawler.getClass().getSimpleName().replace("Crawler", "").toLowerCase();
-                        int pageCount = crawlerProperties.getPages().getOrDefault(crawlerName, 1);
+                        int pageCount = isInitialRun
+                                ? crawlerProperties.getInitialPages().getOrDefault(crawlerName, 1)
+                                : crawlerProperties.getScheduledPages().getOrDefault(crawlerName, 1);
+
                         System.out.println(crawler.getClass().getSimpleName() + " 크롤러를 " + pageCount + "페이지까지 실행합니다.");
                         Thread.sleep((int)(Math.random() * 4000) + 1000);
 

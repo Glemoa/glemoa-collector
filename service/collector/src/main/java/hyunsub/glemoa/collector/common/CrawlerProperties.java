@@ -10,5 +10,6 @@ import java.util.Map;
 @Component
 @ConfigurationProperties(prefix = "crawler")
 public class CrawlerProperties {
-    private Map<String, Integer> pages;
+    private Map<String, Integer> initialPages;
+    private Map<String, Integer> scheduledPages;
 }

@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 //@Component
 public class RuliwebCrawler implements ICrawler {
 
-    private final String url = "https://bbs.ruliweb.com/best/all/now";
+    private final String url = "https://bbs.ruliweb.com/best/all/now?page=1";
     private final Pattern boardAndNoPattern = Pattern.compile("/(best|market)/board/(\\d+)/read/(\\d+)");
 
     @Override

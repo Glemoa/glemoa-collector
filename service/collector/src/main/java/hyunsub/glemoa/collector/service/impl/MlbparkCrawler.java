@@ -20,7 +20,7 @@ import java.util.Optional;
 
 //@Component
 public class MlbparkCrawler implements ICrawler {
-
+//    https://mlbpark.donga.com/mp/b.php?p=61&m=list&b=bullpen&query=&select=&subquery=&subselect=&user=
     private final String url = "https://mlbpark.donga.com/mp/b.php?p=1&m=list&b=bullpen&query=&select=&subquery=&subselect=&user=";
 
     @Override

@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 //@Component
 public class EtolandCrawler implements ICrawler {
 
-    private final String url = "https://etoland.co.kr/bbs/hit.php";
+    private final String url = "https://etoland.co.kr/bbs/hit.php?limit=50&page=1";
     private final Pattern sourceIdPattern = Pattern.compile("bn_id=(\\d+)");
 
     @Override

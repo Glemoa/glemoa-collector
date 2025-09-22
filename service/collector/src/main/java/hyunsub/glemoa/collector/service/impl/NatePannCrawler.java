@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 //@Component
 public class NatePannCrawler implements ICrawler {
 
-    private final String url = "https://pann.nate.com/talk/ranking";
+    private final String url = "https://pann.nate.com/talk/ranking?rankingType=total&page=1";
     private final String baseUrl = "https://pann.nate.com";
     private final Pattern articleNoPattern = Pattern.compile("/talk/(\\d+)");
 
