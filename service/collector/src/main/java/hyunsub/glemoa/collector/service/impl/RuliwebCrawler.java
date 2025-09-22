@@ -20,7 +20,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Component
+//@Component
 public class RuliwebCrawler implements ICrawler {
 
     private final String url = "https://bbs.ruliweb.com/best/all/now";
@@ -47,14 +47,14 @@ public class RuliwebCrawler implements ICrawler {
                     if (subjectLinkElement == null) {
                         continue;
                     }
-                    String title = subjectLinkElement.select("strong").text();
+                    String title = subjectLinkElement.select(".text_over").text();
                     String link = "https://bbs.ruliweb.com" + subjectLinkElement.attr("href");
 
                     // 링크에서 게시판 번호와 게시글 번호 추출
                     Matcher matcher = boardAndNoPattern.matcher(link);
                     Long sourceId = null;
                     if (matcher.find()) {
-                        sourceId = Long.parseLong(matcher.group(2));
+                        sourceId = Long.parseLong(matcher.group(3));
                     } else {
                         System.err.println("경고: 링크에서 게시글 번호(sourceId)를 찾을 수 없습니다. 건너뜁니다. Link: " + link);
                         continue;
