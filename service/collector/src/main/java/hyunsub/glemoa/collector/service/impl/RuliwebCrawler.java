@@ -36,7 +36,7 @@ public class RuliwebCrawler implements ICrawler {
 
             // 일반 게시글과 베스트 게시글 모두 포함
             Elements postElements = doc.select("table.board_list_table tbody tr.table_body");
-            System.out.println(postElements);
+//            System.out.println(postElements);
 
             System.out.println("Ruliweb 크롤링 결과: " + postElements.size());
 
@@ -106,7 +106,7 @@ public class RuliwebCrawler implements ICrawler {
                             .build();
 
                     posts.add(post);
-                    System.out.println(post.toString());
+//                    System.out.println(post.toString());
 
                 } catch (Exception e) {
                     System.err.println("개별 게시글 크롤링 중 오류가 발생했습니다: " + e.getMessage());

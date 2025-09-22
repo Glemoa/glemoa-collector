@@ -114,7 +114,7 @@ public class TheqooCrawler implements ICrawler {
                             .build();
 
                     posts.add(post);
-                    System.out.println(post.toString());
+//                    System.out.println(post.toString());
 
                 } catch (Exception e) {
                     System.err.println("개별 게시글 크롤링 중 오류가 발생했습니다: " + e.getMessage());

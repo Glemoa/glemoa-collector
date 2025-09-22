@@ -21,10 +21,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 //@Component
-public class PpomppuCrawler implements ICrawler {
+public class BobaedreamCrawler implements ICrawler {
 
-    private final String url = "https://ppomppu.co.kr/hot.php?page=1&category=999";
-    private final Pattern noPattern = Pattern.compile("no=(\\d+)");
+    private final String url = "https://www.bobaedream.co.kr/board/bulletin/list.php?code=best";
+    private final Pattern sourceIdPattern = Pattern.compile("No=(\\d+)");
 
     @Override
     public List<Post> crawl() {
@@ -34,78 +34,81 @@ public class PpomppuCrawler implements ICrawler {
                     .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
                     .get();
 
-            Elements postElements = doc.select("tr.baseList:not(.title_bg):not(.title_bg_03)");
+            Elements postElements = doc.select("table#boardlist tbody tr[itemscope]");
 
-            System.out.println("Ppomppu 크롤링 결과: " + postElements.size());
+            System.out.println("Bobaedream 크롤링 결과: " + postElements.size());
 
             for (Element postElement : postElements) {
                 try {
-                    // 광고성 게시글(AD)은 제외
-                    if (postElement.selectFirst("#ad-icon") != null) {
-                        continue;
-                    }
-
-                    // 게시글 제목과 링크 추출
-                    Element titleElement = postElement.selectFirst("a.baseList-title");
+                    // 게시글 제목과 링크, 고유 번호(sourceId) 추출
+                    Element titleElement = postElement.selectFirst("a.bsubject");
                     if (titleElement == null) {
                         continue;
                     }
+                    String link = "https://www.bobaedream.co.kr" + titleElement.attr("href");
                     String title = titleElement.text();
-                    String link = titleElement.attr("href");
 
-                    // 게시글 고유 번호(no) 추출
-                    Matcher matcher = noPattern.matcher(link);
+                    Matcher matcher = sourceIdPattern.matcher(link);
                     Long sourceId = null;
                     if (matcher.find()) {
                         sourceId = Long.parseLong(matcher.group(1));
                     } else {
-                        System.err.println("경고: 게시글 번호(no)를 찾을 수 없습니다. 건너뜁니다. Link: " + link);
+                        System.err.println("경고: 게시글 번호(No)를 찾을 수 없습니다. 건너뜁니다. Link: " + link);
                         continue;
                     }
 
+                    // 작성자 추출
+                    Element authorElement = postElement.selectFirst("span.author");
+                    String author = Optional.ofNullable(authorElement)
+                            .map(Element::text)
+                            .orElse(null);
+
                     // 댓글 수 추출
-                    Element commentCountElement = postElement.selectFirst("span.list_comment2");
+                    Element commentCountElement = postElement.selectFirst("strong.totreply");
                     int commentCount = Optional.ofNullable(commentCountElement)
                             .map(Element::text)
-                            .map(s -> s.replaceAll("[^0-9]", ""))
-                            .filter(s -> !s.isEmpty())
                             .map(Integer::parseInt)
                             .orElse(0);
 
-                    // 작성자, 추천수, 조회수 추출
-                    String author = postElement.selectFirst("div.list_name").text();
-                    String recommendationText = postElement.select("td.baseList-space.board_date").get(1).text();
-                    int recommendationCount = Integer.parseInt(recommendationText.split(" ")[0]);
-                    int viewCount = Integer.parseInt(postElement.select("td.baseList-space.board_date").get(2).text().replaceAll(",", ""));
+                    // 조회수 추출
+                    String viewCountStr = postElement.selectFirst("td.count").text().replaceAll(",", "");
+                    int viewCount = 0;
+                    try {
+                        viewCount = Integer.parseInt(viewCountStr);
+                    } catch (NumberFormatException e) {
+                        System.err.println("조회 수 파싱 오류: " + viewCountStr);
+                    }
+
+                    // 추천수 추출
+                    String recommendationCountStr = postElement.selectFirst("td.recomm font").text().replaceAll(",", "");
+                    int recommendationCount = Integer.parseInt(recommendationCountStr);
 
                     // 날짜/시간 추출
-                    String timeStr = postElement.select("td.baseList-space.board_date").get(0).text().trim();
+                    String timeStr = postElement.selectFirst("td.date").text().trim();
                     LocalDateTime createdAt;
                     try {
-                        // 날짜가 포함된 경우 (예: 22/10/02)
-                        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yy/MM/dd");
-                        createdAt = LocalDate.parse(timeStr, dateFormatter).atStartOfDay();
-                    } catch (DateTimeParseException e) {
-                        // 시간만 포함된 경우 (예: 20:57:01)
-                        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+                        // 시간만 포함된 경우 (예: 13:25)
+                        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
                         createdAt = LocalDateTime.of(LocalDate.now(), LocalTime.parse(timeStr, timeFormatter));
+                    } catch (DateTimeParseException e) {
+                        // 날짜가 포함된 경우 (예: 25.09.22)
+                        createdAt = LocalDateTime.of(LocalDate.parse(timeStr, DateTimeFormatter.ofPattern("yy.MM.dd")), LocalTime.now());
                     }
 
                     Post post = Post.builder()
                             .sourceId(sourceId)
                             .title(title)
-                            .link("https://www.ppomppu.co.kr" + link)
+                            .link(link)
                             .author(author)
                             .commentCount(commentCount)
                             .viewCount(viewCount)
                             .recommendationCount(recommendationCount)
                             .createdAt(createdAt)
-                            .source("ppomppu")
+                            .source("bobaedream")
                             .build();
 
                     posts.add(post);
 //                    System.out.println(post.toString());
-
                 } catch (Exception e) {
                     System.err.println("개별 게시글 크롤링 중 오류가 발생했습니다: " + e.getMessage());
                     e.printStackTrace();

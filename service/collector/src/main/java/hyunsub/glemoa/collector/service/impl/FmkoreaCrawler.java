@@ -15,7 +15,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
-//@Component
+@Component
 public class FmkoreaCrawler implements ICrawler {
 
     private final String url = "https://www.fmkorea.com/index.php?mid=best&listStyle=list&page=1";
@@ -26,6 +26,11 @@ public class FmkoreaCrawler implements ICrawler {
         try {
             Document doc = Jsoup.connect(url)
                     .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
+                    .header("Accept-Language", "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7")
+                    .header("Referer", "https://www.fmkorea.com/")
+                    .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7")
+                    .header("Accept-Encoding", "gzip, deflate, br")
+                    .header("Connection", "keep-alive")
                     .get();
 
 //            Elements postElements = doc.select(".bd_lst_tb tbody tr:not(.notice)");
@@ -75,7 +80,7 @@ public class FmkoreaCrawler implements ICrawler {
                         .build();
 
                 posts.add(post);
-                System.out.println(post.toString());
+//                System.out.println(post.toString());
             }
 
         } catch (IOException e) {

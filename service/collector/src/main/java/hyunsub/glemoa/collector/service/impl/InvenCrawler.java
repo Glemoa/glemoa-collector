@@ -21,10 +21,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 //@Component
-public class PpomppuCrawler implements ICrawler {
+public class InvenCrawler implements ICrawler {
 
-    private final String url = "https://ppomppu.co.kr/hot.php?page=1&category=999";
-    private final Pattern noPattern = Pattern.compile("no=(\\d+)");
+    private final String url = "https://www.inven.co.kr/board/webzine/2097?p=1";
+    private final Pattern articleNoPattern = Pattern.compile("/board/webzine/2097/(\\d+)");
 
     @Override
     public List<Post> crawl() {
@@ -34,37 +34,39 @@ public class PpomppuCrawler implements ICrawler {
                     .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
                     .get();
 
-            Elements postElements = doc.select("tr.baseList:not(.title_bg):not(.title_bg_03)");
+            // 공지사항을 제외한 일반 게시글 목록 선택
+            Elements postElements = doc.select("table.thumbnail tbody tr:not(.notice)");
 
-            System.out.println("Ppomppu 크롤링 결과: " + postElements.size());
+            System.out.println("Inven 크롤링 결과: " + postElements.size());
 
             for (Element postElement : postElements) {
                 try {
-                    // 광고성 게시글(AD)은 제외
-                    if (postElement.selectFirst("#ad-icon") != null) {
+                    // 제목, 링크 추출
+                    Element subjectLinkElement = postElement.selectFirst("a.subject-link");
+                    if (subjectLinkElement == null) {
                         continue;
                     }
+                    String title = subjectLinkElement.text().trim();
+                    String link = subjectLinkElement.attr("href");
 
-                    // 게시글 제목과 링크 추출
-                    Element titleElement = postElement.selectFirst("a.baseList-title");
-                    if (titleElement == null) {
-                        continue;
-                    }
-                    String title = titleElement.text();
-                    String link = titleElement.attr("href");
-
-                    // 게시글 고유 번호(no) 추출
-                    Matcher matcher = noPattern.matcher(link);
+                    // 게시글 고유 번호(sourceId) 추출
+                    Matcher matcher = articleNoPattern.matcher(link);
                     Long sourceId = null;
                     if (matcher.find()) {
                         sourceId = Long.parseLong(matcher.group(1));
                     } else {
-                        System.err.println("경고: 게시글 번호(no)를 찾을 수 없습니다. 건너뜁니다. Link: " + link);
+                        System.err.println("경고: 링크에서 게시글 번호(sourceId)를 찾을 수 없습니다. 건너뜁니다. Link: " + link);
                         continue;
                     }
 
+                    // 작성자 추출
+                    Element userElement = postElement.selectFirst("td.user span.layerNickName");
+                    String author = Optional.ofNullable(userElement)
+                            .map(Element::text)
+                            .orElse("익명");
+
                     // 댓글 수 추출
-                    Element commentCountElement = postElement.selectFirst("span.list_comment2");
+                    Element commentCountElement = postElement.selectFirst("span.con-comment");
                     int commentCount = Optional.ofNullable(commentCountElement)
                             .map(Element::text)
                             .map(s -> s.replaceAll("[^0-9]", ""))
@@ -72,35 +74,34 @@ public class PpomppuCrawler implements ICrawler {
                             .map(Integer::parseInt)
                             .orElse(0);
 
-                    // 작성자, 추천수, 조회수 추출
-                    String author = postElement.selectFirst("div.list_name").text();
-                    String recommendationText = postElement.select("td.baseList-space.board_date").get(1).text();
-                    int recommendationCount = Integer.parseInt(recommendationText.split(" ")[0]);
-                    int viewCount = Integer.parseInt(postElement.select("td.baseList-space.board_date").get(2).text().replaceAll(",", ""));
+                    // 조회 수, 추천 수 추출
+                    String viewCountStr = postElement.selectFirst("td.view").text().replaceAll(",", "");
+                    int viewCount = Integer.parseInt(viewCountStr.trim());
+
+                    String recoCountStr = postElement.selectFirst("td.reco").text().replaceAll(",", "");
+                    int recommendationCount = Integer.parseInt(recoCountStr.trim());
 
                     // 날짜/시간 추출
-                    String timeStr = postElement.select("td.baseList-space.board_date").get(0).text().trim();
+                    String timeStr = postElement.selectFirst("td.date").text().trim();
                     LocalDateTime createdAt;
                     try {
-                        // 날짜가 포함된 경우 (예: 22/10/02)
-                        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yy/MM/dd");
-                        createdAt = LocalDate.parse(timeStr, dateFormatter).atStartOfDay();
-                    } catch (DateTimeParseException e) {
-                        // 시간만 포함된 경우 (예: 20:57:01)
-                        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+                        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
                         createdAt = LocalDateTime.of(LocalDate.now(), LocalTime.parse(timeStr, timeFormatter));
+                    } catch (DateTimeParseException e) {
+                        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM-dd");
+                        createdAt = LocalDate.parse(timeStr, dateFormatter).atStartOfDay();
                     }
 
                     Post post = Post.builder()
                             .sourceId(sourceId)
                             .title(title)
-                            .link("https://www.ppomppu.co.kr" + link)
+                            .link(link)
                             .author(author)
                             .commentCount(commentCount)
                             .viewCount(viewCount)
                             .recommendationCount(recommendationCount)
                             .createdAt(createdAt)
-                            .source("ppomppu")
+                            .source("inven")
                             .build();
 
                     posts.add(post);
