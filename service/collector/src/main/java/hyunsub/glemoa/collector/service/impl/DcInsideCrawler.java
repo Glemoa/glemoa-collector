@@ -2,6 +2,7 @@ package hyunsub.glemoa.collector.service.impl;
 
 import hyunsub.glemoa.collector.entity.Post;
 import hyunsub.glemoa.collector.service.ICrawler;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -14,7 +15,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-//@Component
+@Slf4j
+@Component
 public class DcInsideCrawler implements ICrawler {
     private final String baseUrl = "https://gall.dcinside.com/board/lists/?id=dcbest&list_num=100&sort_type=N&search_head=6&page=%d";
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -30,6 +32,18 @@ public class DcInsideCrawler implements ICrawler {
         List<Post> posts = new ArrayList<>();
 
         for (int page = 1; page <= pageCount; page++) {
+
+            // --- 페이지 요청 간 무작위 지연 시간 추가 ---
+            try {
+                int randomDelay = (int) (Math.random() * 2000) + 1000; // 1초~3초 사이 지연
+                double delaySeconds = randomDelay / 1000.0;
+                log.info("페이지 요청 간 무작위 지연 시간 : " + delaySeconds + "ms");
+                Thread.sleep(randomDelay);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            // ----------------------------------------------
+
             String url = String.format(baseUrl, page);
             try {
                 Document doc = Jsoup.connect(url)
@@ -38,7 +52,7 @@ public class DcInsideCrawler implements ICrawler {
 
                 Elements postElements = doc.select("tr.ub-content.us-post");
 
-                System.out.println("DcInside 크롤링 결과: " +postElements.size());
+                log.info("DcInside 크롤링 결과: " + postElements.size());
 
                 for (Element postElement : postElements) {
                     String sourceIdElement = postElement.selectFirst("td.gall_num").text();
@@ -74,9 +88,10 @@ public class DcInsideCrawler implements ICrawler {
 //                System.out.println(post.toString());
                 }
             } catch (IOException e) {
+                log.error("크롤링 중 오류가 발생했습니다: " + e.getMessage());
                 e.printStackTrace();
             } catch (Exception e) {
-                System.err.println("데이터 추출 중 오류가 발생했습니다: " + e.getMessage());
+                log.error("데이터 추출 중 오류가 발생했습니다: " + e.getMessage());
             }
         }
 

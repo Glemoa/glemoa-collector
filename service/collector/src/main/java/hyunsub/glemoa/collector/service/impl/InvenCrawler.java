@@ -2,6 +2,7 @@ package hyunsub.glemoa.collector.service.impl;
 
 import hyunsub.glemoa.collector.entity.Post;
 import hyunsub.glemoa.collector.service.ICrawler;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -20,10 +21,11 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-//@Component
+@Slf4j
+@Component
 public class InvenCrawler implements ICrawler {
 
-    private final String url = "https://www.inven.co.kr/board/webzine/2097?p=1";
+    private final String baseUrl = "https://www.inven.co.kr/board/webzine/2097?p=%d";
     private final Pattern articleNoPattern = Pattern.compile("/board/webzine/2097/(\\d+)");
 
     @Override
@@ -34,92 +36,106 @@ public class InvenCrawler implements ICrawler {
     @Override
     public List<Post> crawl(int pageCount) {
         List<Post> posts = new ArrayList<>();
-        try {
-            Document doc = Jsoup.connect(url)
-                    .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
-                    .get();
+        for (int page = 1; page <= pageCount; page++) {
+            // --- 페이지 요청 간 무작위 지연 시간 추가 ---
+            try {
+                int randomDelay = (int) (Math.random() * 5000) + 1000; // 1초~3초 사이 지연
+                double delaySeconds = randomDelay / 1000.0;
+                log.info("페이지 요청 간 무작위 지연 시간 : " + delaySeconds + "ms");
+                Thread.sleep(randomDelay);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            // ----------------------------------------------
 
-            // 공지사항을 제외한 일반 게시글 목록 선택
-            Elements postElements = doc.select("table.thumbnail tbody tr:not(.notice)");
+            String url = String.format(baseUrl, page);
+            try {
+                Document doc = Jsoup.connect(url)
+                        .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
+                        .get();
 
-            System.out.println("Inven 크롤링 결과: " + postElements.size());
+                // 공지사항을 제외한 일반 게시글 목록 선택
+                Elements postElements = doc.select("table.thumbnail tbody tr:not(.notice)");
 
-            for (Element postElement : postElements) {
-                try {
-                    // 제목, 링크 추출
-                    Element subjectLinkElement = postElement.selectFirst("a.subject-link");
-                    if (subjectLinkElement == null) {
-                        continue;
-                    }
-                    String title = subjectLinkElement.text().trim();
-                    String link = subjectLinkElement.attr("href");
+                log.info("Inven 크롤링 결과: " + postElements.size());
 
-                    // 게시글 고유 번호(sourceId) 추출
-                    Matcher matcher = articleNoPattern.matcher(link);
-                    Long sourceId = null;
-                    if (matcher.find()) {
-                        sourceId = Long.parseLong(matcher.group(1));
-                    } else {
-                        System.err.println("경고: 링크에서 게시글 번호(sourceId)를 찾을 수 없습니다. 건너뜁니다. Link: " + link);
-                        continue;
-                    }
-
-                    // 작성자 추출
-                    Element userElement = postElement.selectFirst("td.user span.layerNickName");
-                    String author = Optional.ofNullable(userElement)
-                            .map(Element::text)
-                            .orElse("익명");
-
-                    // 댓글 수 추출
-                    Element commentCountElement = postElement.selectFirst("span.con-comment");
-                    int commentCount = Optional.ofNullable(commentCountElement)
-                            .map(Element::text)
-                            .map(s -> s.replaceAll("[^0-9]", ""))
-                            .filter(s -> !s.isEmpty())
-                            .map(Integer::parseInt)
-                            .orElse(0);
-
-                    // 조회 수, 추천 수 추출
-                    String viewCountStr = postElement.selectFirst("td.view").text().replaceAll(",", "");
-                    int viewCount = Integer.parseInt(viewCountStr.trim());
-
-                    String recoCountStr = postElement.selectFirst("td.reco").text().replaceAll(",", "");
-                    int recommendationCount = Integer.parseInt(recoCountStr.trim());
-
-                    // 날짜/시간 추출
-                    String timeStr = postElement.selectFirst("td.date").text().trim();
-                    LocalDateTime createdAt;
+                for (Element postElement : postElements) {
                     try {
-                        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
-                        createdAt = LocalDateTime.of(LocalDate.now(), LocalTime.parse(timeStr, timeFormatter));
-                    } catch (DateTimeParseException e) {
-                        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM-dd");
-                        createdAt = LocalDate.parse(timeStr, dateFormatter).atStartOfDay();
-                    }
+                        // 제목, 링크 추출
+                        Element subjectLinkElement = postElement.selectFirst("a.subject-link");
+                        if (subjectLinkElement == null) {
+                            continue;
+                        }
+                        String title = subjectLinkElement.text().trim();
+                        String link = subjectLinkElement.attr("href");
 
-                    Post post = Post.builder()
-                            .sourceId(sourceId)
-                            .title(title)
-                            .link(link)
-                            .author(author)
-                            .commentCount(commentCount)
-                            .viewCount(viewCount)
-                            .recommendationCount(recommendationCount)
-                            .createdAt(createdAt)
-                            .source("inven")
-                            .build();
+                        // 게시글 고유 번호(sourceId) 추출
+                        Matcher matcher = articleNoPattern.matcher(link);
+                        Long sourceId = null;
+                        if (matcher.find()) {
+                            sourceId = Long.parseLong(matcher.group(1));
+                        } else {
+                            log.warn("경고: 링크에서 게시글 번호(sourceId)를 찾을 수 없습니다. 건너뜁니다. Link: " + link);
+                            continue;
+                        }
 
-                    posts.add(post);
+                        // 작성자 추출
+                        Element userElement = postElement.selectFirst("td.user span.layerNickName");
+                        String author = Optional.ofNullable(userElement)
+                                .map(Element::text)
+                                .orElse("익명");
+
+                        // 댓글 수 추출
+                        Element commentCountElement = postElement.selectFirst("span.con-comment");
+                        int commentCount = Optional.ofNullable(commentCountElement)
+                                .map(Element::text)
+                                .map(s -> s.replaceAll("[^0-9]", ""))
+                                .filter(s -> !s.isEmpty())
+                                .map(Integer::parseInt)
+                                .orElse(0);
+
+                        // 조회 수, 추천 수 추출
+                        String viewCountStr = postElement.selectFirst("td.view").text().replaceAll(",", "");
+                        int viewCount = Integer.parseInt(viewCountStr.trim());
+
+                        String recoCountStr = postElement.selectFirst("td.reco").text().replaceAll(",", "");
+                        int recommendationCount = Integer.parseInt(recoCountStr.trim());
+
+                        // 날짜/시간 추출
+                        String timeStr = postElement.selectFirst("td.date").text().trim();
+                        LocalDateTime createdAt;
+                        try {
+                            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+                            createdAt = LocalDateTime.of(LocalDate.now(), LocalTime.parse(timeStr, timeFormatter));
+                        } catch (DateTimeParseException e) {
+                            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM-dd");
+                            createdAt = LocalDate.parse(timeStr, dateFormatter).atStartOfDay();
+                        }
+
+                        Post post = Post.builder()
+                                .sourceId(sourceId)
+                                .title(title)
+                                .link(link)
+                                .author(author)
+                                .commentCount(commentCount)
+                                .viewCount(viewCount)
+                                .recommendationCount(recommendationCount)
+                                .createdAt(createdAt)
+                                .source("inven")
+                                .build();
+
+                        posts.add(post);
 //                    System.out.println(post.toString());
 
-                } catch (Exception e) {
-                    System.err.println("개별 게시글 크롤링 중 오류가 발생했습니다: " + e.getMessage());
-                    e.printStackTrace();
+                    } catch (Exception e) {
+                        log.warn("개별 게시글 크롤링 중 오류가 발생했습니다: " + e.getMessage());
+                        e.printStackTrace();
+                    }
                 }
+            } catch (IOException e) {
+                log.error("크롤링 중 오류가 발생했습니다: " + e.getMessage());
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            System.err.println("크롤링 중 오류가 발생했습니다: " + e.getMessage());
-            e.printStackTrace();
         }
         return posts;
     }

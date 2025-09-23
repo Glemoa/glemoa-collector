@@ -83,6 +83,12 @@ public class WebCollectorScheduler {
                             return ((HumorunivCrawler) crawler).crawl(pageCount);
                         } else if (crawler instanceof DcInsideCrawler) {
                             return ((DcInsideCrawler) crawler).crawl(pageCount);
+                        } else if (crawler instanceof InvenCrawler) {
+                            return ((InvenCrawler) crawler).crawl(pageCount);
+                        } else if (crawler instanceof NatePannCrawler) {
+                            return ((NatePannCrawler) crawler).crawl(pageCount);
+                        } else if (crawler instanceof RuliwebCrawler) {
+                            return ((RuliwebCrawler) crawler).crawl(pageCount);
                         }
 
                         return crawler.crawl();

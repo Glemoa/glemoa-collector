@@ -20,19 +20,32 @@ spring:
 
 crawler:
   initial-pages:
-    ppomppu: 30
-    fmkorea: 30
-    dcinside: 30
-    clien: 30
-    ruliweb: 30
-    theqoo: 30
-    etoland: 30
-    humoruniv: 30
-    bobaedream: 30
-    mlbpark: 30
-    arcalive: 5
-    inven: 30
-    natepann: 30
+    ppomppu: 3
+    fmkorea: 3
+    dcinside: 3
+    clien: 3
+    ruliweb: 3
+    theqoo: 3
+    etoland: 3
+    humoruniv: 3
+    bobaedream: 3
+    mlbpark: 3
+    arcalive: 3
+    inven: 3
+    natepann: 3
+#    ppomppu: 30
+#    fmkorea: 30
+#    dcinside: 30
+#    clien: 30
+#    ruliweb: 30
+#    theqoo: 30
+#    etoland: 30
+#    humoruniv: 30
+#    bobaedream: 30
+#    mlbpark: 30
+#    arcalive: 30
+#    inven: 30
+#    natepann: 30
   scheduled-pages:
     ppomppu: 3
     fmkorea: 3

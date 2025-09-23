@@ -2,6 +2,7 @@ package hyunsub.glemoa.collector.service.impl;
 
 import hyunsub.glemoa.collector.entity.Post;
 import hyunsub.glemoa.collector.service.ICrawler;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -15,7 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-//@Component
+@Slf4j
+@Component
 public class ClienCrawler implements ICrawler {
 
     private final String baseUrl = "https://clien.net/service/board/park?&od=T31&category=0&po=%d";
@@ -30,6 +32,18 @@ public class ClienCrawler implements ICrawler {
     public List<Post> crawl(int pageCount) {
         List<Post> posts = new ArrayList<>();
         for (int page = 1; page <= pageCount; page++) {
+
+            // --- 페이지 요청 간 무작위 지연 시간 추가 ---
+            try {
+                int randomDelay = (int) (Math.random() * 2000) + 1000; // 1초~3초 사이 지연
+                double delaySeconds = randomDelay / 1000.0;
+                log.info("페이지 요청 간 무작위 지연 시간 : " + delaySeconds + "ms");
+                Thread.sleep(randomDelay);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            // ----------------------------------------------
+
             String url = String.format(baseUrl, page);
             try {
                 Document doc = Jsoup.connect(url)
@@ -38,7 +52,7 @@ public class ClienCrawler implements ICrawler {
 
                 Elements postElements = doc.select("div.list_item.symph_row[data-role=list-row]");
 
-                System.out.println("Clien 크롤링 결과: " + postElements.size());
+                log.info("Clien 크롤링 결과: " + postElements.size());
 
                 for (Element postElement : postElements) {
                     try {
@@ -102,12 +116,12 @@ public class ClienCrawler implements ICrawler {
                         posts.add(post);
                         //                    System.out.println(post.toString());
                     } catch (Exception e) {
-                        System.err.println("개별 게시글 크롤링 중 오류가 발생했습니다: " + e.getMessage());
+                        log.warn("개별 게시글 크롤링 중 오류가 발생했습니다: " + e.getMessage());
                         e.printStackTrace();
                     }
                 }
             } catch (IOException e) {
-                System.err.println("크롤링 중 오류가 발생했습니다: " + e.getMessage());
+                log.error("크롤링 중 오류가 발생했습니다: " + e.getMessage());
                 e.printStackTrace();
             }
         }

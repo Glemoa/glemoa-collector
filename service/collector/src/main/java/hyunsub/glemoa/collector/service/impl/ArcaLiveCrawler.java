@@ -2,6 +2,7 @@ package hyunsub.glemoa.collector.service.impl;
 
 import hyunsub.glemoa.collector.entity.Post;
 import hyunsub.glemoa.collector.service.ICrawler;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -20,6 +21,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 @Component
 public class ArcaLiveCrawler implements ICrawler {
 
@@ -37,6 +39,18 @@ public class ArcaLiveCrawler implements ICrawler {
         List<Post> posts = new ArrayList<>();
 
         for (int page = 1; page <= pageCount; page++) {
+
+            // --- 페이지 요청 간 무작위 지연 시간 추가 ---
+            try {
+                int randomDelay = (int) (Math.random() * 2000) + 1000; // 1초~3초 사이 지연
+                double delaySeconds = randomDelay / 1000.0;
+                log.info("페이지 요청 간 무작위 지연 시간 : " + delaySeconds + "ms");
+                Thread.sleep(randomDelay);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            // ----------------------------------------------
+
             String url = String.format(baseUrl, page);
             try {
                 Document doc = Jsoup.connect(url)
@@ -46,7 +60,7 @@ public class ArcaLiveCrawler implements ICrawler {
                 // 공지사항을 제외한 일반 게시글 목록 선택
                 Elements postElements = doc.select("div.vrow.hybrid:not(.notice)");
 
-                System.out.println("ArcaLive 크롤링 결과: " + postElements.size());
+                log.info("ArcaLive 크롤링 결과: " + postElements.size());
 
                 for (Element postElement : postElements) {
                     try {
@@ -63,7 +77,7 @@ public class ArcaLiveCrawler implements ICrawler {
                         if (matcher.find()) {
                             sourceId = Long.parseLong(matcher.group(1));
                         } else {
-                            System.err.println("경고: 링크에서 게시글 번호(sourceId)를 찾을 수 없습니다. 건너뜁니다. Link: " + link);
+                            log.warn("경고: 링크에서 게시글 번호(sourceId)를 찾을 수 없습니다. 건너뜁니다. Link: " + link);
                             continue;
                         }
 
@@ -88,7 +102,7 @@ public class ArcaLiveCrawler implements ICrawler {
                         try {
                             viewCount = Integer.parseInt(viewCountStr);
                         } catch (NumberFormatException e) {
-                            System.err.println("경고: 조회수 파싱 오류: " + viewCountStr);
+                            log.warn("경고: 조회수 파싱 오류: " + viewCountStr);
                         }
 
                         String recoCountStr = postElement.selectFirst("span.vcol.col-rate").text().trim().replaceAll(",", "");
@@ -96,7 +110,7 @@ public class ArcaLiveCrawler implements ICrawler {
                         try {
                             recommendationCount = Integer.parseInt(recoCountStr);
                         } catch (NumberFormatException e) {
-                            System.err.println("경고: 추천수 파싱 오류: " + recoCountStr);
+                            log.warn("경고: 추천수 파싱 오류: " + recoCountStr);
                         }
 
                         // 작성 시간 추출 (datetime 속성을 우선적으로 사용)
@@ -139,12 +153,12 @@ public class ArcaLiveCrawler implements ICrawler {
                         //                    System.out.println(post.toString());
 
                     } catch (Exception e) {
-                        System.err.println("개별 게시글 크롤링 중 오류가 발생했습니다: " + e.getMessage());
+                        log.warn("개별 게시글 크롤링 중 오류가 발생했습니다: " + e.getMessage());
                         e.printStackTrace();
                     }
                 }
             } catch (IOException e) {
-                System.err.println("크롤링 중 오류가 발생했습니다: " + e.getMessage());
+                log.warn("크롤링 중 오류가 발생했습니다: " + e.getMessage());
                 e.printStackTrace();
             }
         }
