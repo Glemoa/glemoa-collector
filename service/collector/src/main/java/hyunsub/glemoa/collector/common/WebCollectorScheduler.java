@@ -29,54 +29,34 @@ public class WebCollectorScheduler {
     @Value("${glemoa.scheduler.scheduled-crawl-minutes:30}")
     private int scheduledCrawlMinutes;
 
-    // 처음 실행인지 확인하는 트리거 변수
-    private boolean isInitialRun = true;
-
-    // ✨ 오늘 날짜를 기준으로 목표 날짜 (예: 30일 전.. / 1일 전.. )를 설정합니다.
-    LocalDateTime targetDate;
-
     Random random = new Random();
     long randomDelayMillis = 0; // 무작위 지연 변수
 
     // 스케줄러가 끝나고 N초 뒤에 다시 스케줄러 시작.
     @Scheduled(fixedDelayString = "${glemoa.scheduler.fixed-delay-seconds:60}000")
     public void runCrawlingJob() {
-        // 데이터베이스가 비어있는지 확인하여 최초 실행 여부 결정
-        if (isInitialRun && postRepository.count() > 0) {
-            isInitialRun = false;
-        }
-
-        LocalDateTime initialCrawlStartDate = LocalDateTime.now().minusDays(initialCrawlDays);
-        LocalDateTime scheduledCrawlInterval = LocalDateTime.now().minusMinutes(scheduledCrawlMinutes);
-
-        // 처음 실행한 상태라면 설정값(N일 전), 아니면 설정값(N분 전)
-        targetDate = isInitialRun ? initialCrawlStartDate : scheduledCrawlInterval;
-
-//        int randomDelayMillis = random.nextInt(119000) + 1000; // 1초에서 120초 사이의 무작위 지연
-//        int randomDelayMillis = random.nextInt(1) + 1000; // 1초에서 120초 사이의 무작위 지연
-//        try {
-//            log.info("다음 크롤링까지 " + (double)randomDelayMillis/1000 + "초 대기합니다.");
-//            Thread.sleep(randomDelayMillis);
-//        } catch (InterruptedException e) {
-//            Thread.currentThread().interrupt();
-//        }
-
         log.info("스케줄링된 크롤링 작업을 시작합니다.");
 
         // 여러 스레드를 사용하여 병렬로 크롤링을 실행할 수 있습니다.
         List<List<Post>> allPosts = crawlers.parallelStream()
                 .map(crawler -> {
+                    String source = crawler.getClass().getSimpleName().replace("Crawler", "").toLowerCase();
                     try {
+                        // 크롤러별로 마지막 수집 시간을 DB에서 조회
+                        LocalDateTime targetDate = postRepository.findTopBySourceOrderByCreatedAtDesc(source)
+                                .map(Post::getCreatedAt)
+                                .orElse(LocalDateTime.now().minusDays(initialCrawlDays));
+
                         // 크롤러 실행 전 무작위 지연 시간 추가 (1~3초)
                         Thread.sleep(random.nextInt(2000) + 1000);
-                        log.info(crawler.getClass().getSimpleName() + " 크롤러를 " + targetDate + "가 있는 페이지까지 실행합니다.");
+                        log.info("[{}] 크롤러를 실행합니다. 목표 날짜: {}", source, targetDate);
 
                         // 모든 크롤러는 ICrawler 인터페이스를 구현하므로, 별도 캐스팅 없이 호출 가능
                         return crawler.crawl(targetDate);
 
                     } catch (Exception e) {
                         // 특정 크롤러에서 오류가 발생해도 다른 크롤러에 영향 주지 않도록 예외 처리
-                        log.error(crawler.getClass().getSimpleName() + " 크롤링 중 오류가 발생했습니다: " + e.getMessage(), e);
+                        log.error("[{}] 크롤링 중 오류가 발생했습니다: {}", source, e.getMessage(), e);
                         // 빈 리스트를 반환하여 스트림이 계속 진행되게 함
                         return new ArrayList<Post>();
                     }
