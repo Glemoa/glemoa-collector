@@ -137,7 +137,7 @@ public class FmkoreaCrawler implements ICrawler {
                                         .createdAt(createdAt)
                                         .source("fmkorea")
                                         .build();
-                                log.info(post.toString());
+//                                log.info(post.toString());
                                 posts.add(post);
                             } else {
                                 log.info("목표 날짜({}) 이전 게시글({})을 발견하여 크롤링을 중단합니다.", until, createdAt);

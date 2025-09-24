@@ -18,21 +18,21 @@ spring:
     hibernate:
       ddl-auto: create
 
-crawler:
-  initial-pages:
-    ppomppu: 3
-    fmkorea: 3
-    dcinside: 3
-    clien: 3
-    ruliweb: 3
-    theqoo: 3
-    etoland: 3
-    humoruniv: 3
-    bobaedream: 3
-    mlbpark: 3
-    arcalive: 3
-    inven: 3
-    natepann: 3
+#crawler:
+#  initial-pages:
+#    ppomppu: 3
+#    fmkorea: 3
+#    dcinside: 3
+#    clien: 3
+#    ruliweb: 3
+#    theqoo: 3
+#    etoland: 3
+#    humoruniv: 3
+#    bobaedream: 3
+#    mlbpark: 3
+#    arcalive: 3
+#    inven: 3
+#    natepann: 3
 #    ppomppu: 30
 #    fmkorea: 30
 #    dcinside: 30
@@ -46,17 +46,11 @@ crawler:
 #    arcalive: 30
 #    inven: 30
 #    natepann: 30
-  scheduled-pages:
-    ppomppu: 3
-    fmkorea: 3
-    dcinside: 3
-    clien: 3
-    ruliweb: 3
-    theqoo: 3
-    etoland: 3
-    humoruniv: 3
-    bobaedream: 3
-    mlbpark: 3
-    arcalive: 3
-    inven: 3
-    natepann: 3
+#    inven: 3
+#    natepann: 3
+
+glemoa:
+  scheduler:
+    fixed-delay-seconds: 60 # 스케줄러 실행 완료 후 대기 시간 (초)
+    initial-crawl-days: 1 # 최초 실행 시 수집할 기간 (일)
+    scheduled-crawl-minutes: 30 # 스케줄링 실행 시 수집할 시간 (분)

@@ -2,20 +2,17 @@ package hyunsub.glemoa.collector.common;
 
 import hyunsub.glemoa.collector.repository.PostRepository;
 import hyunsub.glemoa.collector.service.ICrawler;
-import hyunsub.glemoa.collector.service.impl.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import hyunsub.glemoa.collector.entity.Post;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -26,31 +23,33 @@ public class WebCollectorScheduler {
     private final List<ICrawler> crawlers;
     private final PostRepository postRepository;
 
-    // 💡 새로 만든 설정 클래스를 주입받습니다.
-    private final CrawlerProperties crawlerProperties;
+    @Value("${glemoa.scheduler.initial-crawl-days:1}")
+    private int initialCrawlDays;
+
+    @Value("${glemoa.scheduler.scheduled-crawl-minutes:30}")
+    private int scheduledCrawlMinutes;
 
     // 처음 실행인지 확인하는 트리거 변수
     private boolean isInitialRun = true;
 
     // ✨ 오늘 날짜를 기준으로 목표 날짜 (예: 30일 전.. / 1일 전.. )를 설정합니다.
     LocalDateTime targetDate;
-    LocalDateTime initialCrawlStartDate = LocalDateTime.now().minusDays(1);
-    LocalDateTime scheduledCrawlInterval;
 
     Random random = new Random();
     long randomDelayMillis = 0; // 무작위 지연 변수
 
-    // 예시: 매 10분마다 크롤링을 실행
-    @Scheduled(fixedRate = 30, timeUnit = TimeUnit.SECONDS)
+    // 스케줄러가 끝나고 N초 뒤에 다시 스케줄러 시작.
+    @Scheduled(fixedDelayString = "${glemoa.scheduler.fixed-delay-seconds:60}000")
     public void runCrawlingJob() {
         // 데이터베이스가 비어있는지 확인하여 최초 실행 여부 결정
         if (isInitialRun && postRepository.count() > 0) {
             isInitialRun = false;
         }
 
-        scheduledCrawlInterval = LocalDateTime.now().minusMinutes(30);
+        LocalDateTime initialCrawlStartDate = LocalDateTime.now().minusDays(initialCrawlDays);
+        LocalDateTime scheduledCrawlInterval = LocalDateTime.now().minusMinutes(scheduledCrawlMinutes);
 
-        // 처음 실행한 상태라면 1일 전, 아니면 30분 전
+        // 처음 실행한 상태라면 설정값(N일 전), 아니면 설정값(N분 전)
         targetDate = isInitialRun ? initialCrawlStartDate : scheduledCrawlInterval;
 
 //        int randomDelayMillis = random.nextInt(119000) + 1000; // 1초에서 120초 사이의 무작위 지연
@@ -86,16 +85,16 @@ public class WebCollectorScheduler {
 
         // 크롤링된 모든 데이터를 통합하여 처리합니다.
         log.info("모든 크롤링 작업이 완료되었습니다.");
-        System.out.println(allPosts);
+//        System.out.println(allPosts);
 
         allPosts.forEach(posts -> {
                 if (!posts.isEmpty()) {
                     log.info(posts.getFirst().getSource() + " 수집된 게시글 수: " + posts.size());
 
                     // posts(List<Post>)를 순회하는 두 번째 루프
-                    posts.forEach(post -> {
-                        log.info(post.toString());
-                    });
+//                    posts.forEach(post -> {
+//                        log.info(post.toString());
+//                    });
                 }
             });
 
