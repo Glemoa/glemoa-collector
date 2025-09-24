@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.MonthDay;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -25,18 +26,23 @@ import java.util.regex.Pattern;
 @Component
 public class InvenCrawler implements ICrawler {
 
-    private final String baseUrl = "https://www.inven.co.kr/board/webzine/2097?p=%d";
+    private final String baseUrl = "https://www.inven.co.kr/board/webzine/2097?my=chu&p=%d";
     private final Pattern articleNoPattern = Pattern.compile("/board/webzine/2097/(\\d+)");
 
-    @Override
-    public List<Post> crawl() {
-        return crawl(1);
-    }
+//    @Override
+//    public List<Post> crawl() {
+//        return crawl(1);
+//    }
 
     @Override
-    public List<Post> crawl(int pageCount) {
+    public List<Post> crawl(LocalDateTime until) {
         List<Post> posts = new ArrayList<>();
-        for (int page = 1; page <= pageCount; page++) {
+        int page = 1;
+        boolean continueCrawling = true;
+
+//      for (int page = 1; page <= pageCount; page++) {
+        while (continueCrawling) {
+
             // --- 페이지 요청 간 무작위 지연 시간 추가 ---
             try {
                 int randomDelay = (int) (Math.random() * 5000) + 1000; // 1초~3초 사이 지연
@@ -57,7 +63,7 @@ public class InvenCrawler implements ICrawler {
                 // 공지사항을 제외한 일반 게시글 목록 선택
                 Elements postElements = doc.select("table.thumbnail tbody tr:not(.notice)");
 
-                log.info("Inven 크롤링 결과: " + postElements.size());
+                log.info("Inven " + page + " page 크롤링 결과: " + postElements.size());
 
                 for (Element postElement : postElements) {
                     try {
@@ -104,12 +110,23 @@ public class InvenCrawler implements ICrawler {
                         // 날짜/시간 추출
                         String timeStr = postElement.selectFirst("td.date").text().trim();
                         LocalDateTime createdAt;
+
                         try {
                             DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
                             createdAt = LocalDateTime.of(LocalDate.now(), LocalTime.parse(timeStr, timeFormatter));
                         } catch (DateTimeParseException e) {
-                            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM-dd");
-                            createdAt = LocalDate.parse(timeStr, dateFormatter).atStartOfDay();
+                            DateTimeFormatter fmt = DateTimeFormatter.ofPattern("MM-dd");
+                            MonthDay md = MonthDay.parse(timeStr, fmt);
+                            LocalDate localDate = md.atYear(LocalDate.now().getYear());
+                            createdAt = localDate.atStartOfDay();
+//                            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM-dd");
+//                            createdAt = LocalDate.parse(timeStr, dateFormatter).atStartOfDay();
+                        }
+
+                        // ✨ 게시글 날짜가 목표 날짜보다 이전이면 중단
+                        if (createdAt.isBefore(until)) {
+                            continueCrawling = false;
+                            break;
                         }
 
                         Post post = Post.builder()
@@ -135,6 +152,9 @@ public class InvenCrawler implements ICrawler {
             } catch (IOException e) {
                 log.error("크롤링 중 오류가 발생했습니다: " + e.getMessage());
                 e.printStackTrace();
+            }
+            if (continueCrawling) {
+                page++;
             }
         }
         return posts;

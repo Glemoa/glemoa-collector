@@ -25,18 +25,22 @@ import java.util.regex.Pattern;
 @Component
 public class RuliwebCrawler implements ICrawler {
 
-    private final String baseUrl = "https://bbs.ruliweb.com/best/all/now?page=%d";
+    private final String baseUrl = "https://bbs.ruliweb.com/best/humor_only/now?orderby=regdate&custom_list=best_100&page=%d";
     private final Pattern boardAndNoPattern = Pattern.compile("/(best|market)/board/(\\d+)/read/(\\d+)");
 
-    @Override
-    public List<Post> crawl() {
-        return crawl(1);
-    }
+//    @Override
+//    public List<Post> crawl() {
+//        return crawl(1);
+//    }
 
     @Override
-    public List<Post> crawl(int pageCount) {
+    public List<Post> crawl(LocalDateTime until) {
         List<Post> posts = new ArrayList<>();
-        for (int page = 1; page <= pageCount; page++) {
+        int page = 1;
+        boolean continueCrawling = true;
+
+//      for (int page = 1; page <= pageCount; page++) {
+        while (continueCrawling) {
             // --- 페이지 요청 간 무작위 지연 시간 추가 ---
             try {
                 int randomDelay = (int) (Math.random() * 2000) + 1000; // 1초~3초 사이 지연
@@ -57,7 +61,16 @@ public class RuliwebCrawler implements ICrawler {
                 // 일반 게시글과 베스트 게시글 모두 포함
                 Elements postElements = doc.select("table.board_list_table tbody tr.table_body");
 
-                log.info("Ruliweb 크롤링 결과: " + postElements.size());
+                Elements end = postElements.select("table.board_list_table tbody tr.table_body");
+
+                // 💡 추가된 로직: "결과값이 없습니다." 메시지 확인
+                if (doc.selectFirst("p.empty_result") != null) {
+                    log.info("Ruliweb " + page + "페이지에서 '결과값이 없습니다.' 메시지가 발견되어 크롤링을 종료합니다.");
+                    break;
+                }
+
+                log.info("Ruliweb " + page + "페이지 크롤링 결과: " + postElements.size());
+//                log.info("Ruliweb 크롤링 결과: " + postElements.size());
 
                 for (Element postElement : postElements) {
                     try {
@@ -112,6 +125,12 @@ public class RuliwebCrawler implements ICrawler {
                             createdAt = LocalDateTime.of(LocalDate.now(), LocalTime.parse(timeStr, timeFormatter));
                         }
 
+                        // ✨ 게시글 날짜가 목표 날짜보다 이전이면 중단
+                        if (createdAt.isBefore(until)) {
+                            continueCrawling = false;
+                            break;
+                        }
+
                         Post post = Post.builder()
                                 .sourceId(sourceId)
                                 .title(title)
@@ -135,6 +154,9 @@ public class RuliwebCrawler implements ICrawler {
             } catch (IOException e) {
                 log.error("크롤링 중 오류가 발생했습니다: " + e.getMessage());
                 e.printStackTrace();
+            }
+            if (continueCrawling) {
+                page++;
             }
         }
         return posts;

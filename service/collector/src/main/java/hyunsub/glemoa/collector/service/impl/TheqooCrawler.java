@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.MonthDay;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -25,15 +26,19 @@ public class TheqooCrawler implements ICrawler {
 
     private final String baseUrl = "https://theqoo.net/hot?page=%d";
 
-    @Override
-    public List<Post> crawl() {
-        return crawl(1);
-    }
+//    @Override
+//    public List<Post> crawl() {
+//        return crawl(1);
+//    }
 
     @Override
-    public List<Post> crawl(int pageCount) {
+    public List<Post> crawl(LocalDateTime until) {
         List<Post> posts = new ArrayList<>();
-        for (int page = 1; page <= pageCount; page++) {
+        int page = 1;
+        boolean continueCrawling = true;
+
+//      for (int page = 1; page <= pageCount; page++) {
+        while (continueCrawling) {
             // --- 페이지 요청 간 무작위 지연 시간 추가 ---
             try {
                 int randomDelay = (int) (Math.random() * 2000) + 1000; // 1초~3초 사이 지연
@@ -91,19 +96,25 @@ public class TheqooCrawler implements ICrawler {
                                 .orElse(0);
 
                         // 날짜/시간 추출
-                        Element timeElement = tdElements.get(3);
+//                        Element timeElement = tdElements.get(3);
+                        String timeStr = tdElements.get(3).text().trim();
                         LocalDateTime createdAt = null;
-                        if (timeElement != null) {
-                            String timeStr = timeElement.text().trim();
-                            try {
-                                // 날짜가 포함된 경우 (예: 24.12.06)
-                                DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yy.MM.dd");
-                                createdAt = LocalDate.parse(timeStr, dateFormatter).atStartOfDay();
-                            } catch (DateTimeParseException e) {
-                                // 시간만 포함된 경우 (예: 19:54)
-                                DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
-                                createdAt = LocalDateTime.of(LocalDate.now(), LocalTime.parse(timeStr, timeFormatter));
-                            }
+                        try {
+                            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+                            createdAt = LocalDateTime.of(LocalDate.now(), LocalTime.parse(timeStr, timeFormatter));
+                        } catch (DateTimeParseException e) {
+                            DateTimeFormatter fmt = DateTimeFormatter.ofPattern("MM.dd");
+                            MonthDay md = MonthDay.parse(timeStr, fmt);
+                            LocalDate localDate = md.atYear(LocalDate.now().getYear());
+                            createdAt = localDate.atStartOfDay();
+//                            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM-dd");
+//                            createdAt = LocalDate.parse(timeStr, dateFormatter).atStartOfDay();
+                        }
+
+                        // ✨ 게시글 날짜가 목표 날짜보다 이전이면 중단
+                        if (createdAt.isBefore(until)) {
+                            continueCrawling = false;
+                            break;
                         }
 
                         // 조회 수 추출
@@ -138,6 +149,9 @@ public class TheqooCrawler implements ICrawler {
             } catch (IOException e) {
                 log.error("크롤링 중 오류가 발생했습니다: " + e.getMessage());
                 e.printStackTrace();
+            }
+            if (continueCrawling) {
+                page++;
             }
         }
         return posts;

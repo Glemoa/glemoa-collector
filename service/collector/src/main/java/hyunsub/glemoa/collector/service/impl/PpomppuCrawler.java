@@ -24,19 +24,23 @@ import java.util.regex.Pattern;
 @Slf4j
 @Component
 public class PpomppuCrawler implements ICrawler {
-
-    private final String baseUrl = "https://ppomppu.co.kr/hot.php?page=%d&category=999";
+//    https://ppomppu.co.kr/hot.php?id=freeboard&page=1&category=999&page_num=1
+    private final String baseUrl = "https://ppomppu.co.kr/hot.php?id=freeboard&page=%d&category=999&page_num=1";
     private final Pattern noPattern = Pattern.compile("no=(\\d+)");
 
-    @Override
-    public List<Post> crawl() {
-        return crawl(1);
-    }
+//    @Override
+//    public List<Post> crawl() {
+//        return crawl(1);
+//    }
 
     @Override
-    public List<Post> crawl(int pageCount) {
+    public List<Post> crawl(LocalDateTime until) {
         List<Post> posts = new ArrayList<>();
-        for (int page = 1; page <= pageCount; page++) {
+        int page = 1;
+        boolean continueCrawling = true;
+
+//      for (int page = 1; page <= pageCount; page++) {
+        while (continueCrawling) {
             // --- 페이지 요청 간 무작위 지연 시간 추가 ---
             try {
                 int randomDelay = (int) (Math.random() * 2000) + 1000; // 1초~3초 사이 지연
@@ -56,7 +60,8 @@ public class PpomppuCrawler implements ICrawler {
 
                 Elements postElements = doc.select("tr.baseList:not(.title_bg):not(.title_bg_03)");
 
-                log.info("Ppomppu 크롤링 결과: " + postElements.size());
+                log.info("Ppomppu " + page + "페이지 크롤링 결과: " + postElements.size());
+//                log.info("Ppomppu 크롤링 결과: " + postElements.size());
 
                 for (Element postElement : postElements) {
                     try {
@@ -114,6 +119,12 @@ public class PpomppuCrawler implements ICrawler {
                             createdAt = LocalDateTime.of(LocalDate.now(), LocalTime.parse(timeStr, timeFormatter));
                         }
 
+                        // ✨ 게시글 날짜가 목표 날짜보다 이전이면 중단
+                        if (createdAt.isBefore(until)) {
+                            continueCrawling = false;
+                            break;
+                        }
+
                         Post post = Post.builder()
                                 .sourceId(sourceId)
                                 .title(title)
@@ -137,6 +148,9 @@ public class PpomppuCrawler implements ICrawler {
             } catch (IOException e) {
                 log.error("크롤링 중 오류가 발생했습니다: " + e.getMessage());
                 e.printStackTrace();
+            }
+            if (continueCrawling) {
+                page++;
             }
         }
         return posts;

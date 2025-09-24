@@ -21,23 +21,25 @@ public class DcInsideCrawler implements ICrawler {
     private final String baseUrl = "https://gall.dcinside.com/board/lists/?id=dcbest&list_num=100&sort_type=N&search_head=6&page=%d";
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    @Override
-    public List<Post> crawl() {
-        return crawl(1);
-    }
+//    @Override
+//    public List<Post> crawl() {
+//        return crawl(1);
+//    }
 
     @Override
-    public List<Post> crawl(int pageCount) {
-
+    public List<Post> crawl(LocalDateTime until) {
         List<Post> posts = new ArrayList<>();
+        int page = 1;
+        boolean continueCrawling = true;
 
-        for (int page = 1; page <= pageCount; page++) {
+//      for (int page = 1; page <= pageCount; page++) {
+        while (continueCrawling) {
 
             // --- 페이지 요청 간 무작위 지연 시간 추가 ---
             try {
-                int randomDelay = (int) (Math.random() * 2000) + 1000; // 1초~3초 사이 지연
+                int randomDelay = (int) (Math.random() * 6000) + 2000; // 2초~8초 사이 지연
                 double delaySeconds = randomDelay / 1000.0;
-                log.info("페이지 요청 간 무작위 지연 시간 : " + delaySeconds + "ms");
+                log.info("페이지 요청 간 무작위 지연 시간 : " + delaySeconds + " s");
                 Thread.sleep(randomDelay);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -52,7 +54,7 @@ public class DcInsideCrawler implements ICrawler {
 
                 Elements postElements = doc.select("tr.ub-content.us-post");
 
-                log.info("DcInside 크롤링 결과: " + postElements.size());
+                log.info("DcInside " + page + "페이지 크롤링 결과: " + postElements.size());
 
                 for (Element postElement : postElements) {
                     String sourceIdElement = postElement.selectFirst("td.gall_num").text();
@@ -71,6 +73,12 @@ public class DcInsideCrawler implements ICrawler {
 
                     String dateString = postElement.selectFirst("td.gall_date").attr("title");
                     LocalDateTime createdAt = LocalDateTime.parse(dateString, formatter);
+
+                    // ✨ 게시글 날짜가 목표 날짜보다 이전이면 중단
+                    if (createdAt.isBefore(until)) {
+                        continueCrawling = false;
+                        break;
+                    }
 
                     Post post = Post.builder()
                             .sourceId(sourceId)
@@ -92,6 +100,9 @@ public class DcInsideCrawler implements ICrawler {
                 e.printStackTrace();
             } catch (Exception e) {
                 log.error("데이터 추출 중 오류가 발생했습니다: " + e.getMessage());
+            }
+            if (continueCrawling) {
+                page++;
             }
         }
 

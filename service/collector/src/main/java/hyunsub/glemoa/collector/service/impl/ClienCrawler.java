@@ -23,15 +23,19 @@ public class ClienCrawler implements ICrawler {
     private final String baseUrl = "https://clien.net/service/board/park?&od=T31&category=0&po=%d";
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    @Override
-    public List<Post> crawl() {
-        return crawl(1);
-    }
+//    @Override
+//    public List<Post> crawl() {
+//        return crawl(1);
+//    }
 
     @Override
-    public List<Post> crawl(int pageCount) {
+    public List<Post> crawl(LocalDateTime until) {
         List<Post> posts = new ArrayList<>();
-        for (int page = 1; page <= pageCount; page++) {
+        int page = 0;
+        boolean continueCrawling = true;
+
+//      for (int page = 1; page <= pageCount; page++) {
+        while (continueCrawling) {
 
             // --- 페이지 요청 간 무작위 지연 시간 추가 ---
             try {
@@ -52,7 +56,8 @@ public class ClienCrawler implements ICrawler {
 
                 Elements postElements = doc.select("div.list_item.symph_row[data-role=list-row]");
 
-                log.info("Clien 크롤링 결과: " + postElements.size());
+                log.info("Clien " + page + "페이지 크롤링 결과: " + postElements.size());
+//                log.info("Clien 크롤링 결과: " + postElements.size());
 
                 for (Element postElement : postElements) {
                     try {
@@ -101,20 +106,33 @@ public class ClienCrawler implements ICrawler {
                         String dateString = postElement.selectFirst("span.time.popover > span.timestamp").text();
                         LocalDateTime createdAt = LocalDateTime.parse(dateString, formatter);
 
-                        Post post = Post.builder()
-                                .sourceId(sourceId)
-                                .title(title)
-                                .link(link)
-                                .author(author)
-                                .commentCount(commentCount)
-                                .viewCount(viewCount)
-                                .recommendationCount(recommendationCount)
-                                .createdAt(createdAt)
-                                .source("clien")
-                                .build();
+//                        // ✨ 게시글 날짜가 목표 날짜보다 이전이면 중단
+//                        if (createdAt.isBefore(until)) {
+//                            continueCrawling = false;
+//                            break;
+//                        }
 
-                        posts.add(post);
-                        //                    System.out.println(post.toString());
+                        // 💡 수정된 로직: 목표 날짜 이후의 게시글만 추가
+                        if (!createdAt.isBefore(until)) {
+                            Post post = Post.builder()
+                                    .sourceId(sourceId)
+                                    .title(title)
+                                    .link(link)
+                                    .author(author)
+                                    .commentCount(commentCount)
+                                    .viewCount(viewCount)
+                                    .recommendationCount(recommendationCount)
+                                    .createdAt(createdAt)
+                                    .source("clien")
+                                    .build();
+                            posts.add(post);
+                        } else {
+                            // 목표 날짜에 도달하면 크롤링 중단
+                            log.info("목표 날짜에 도달하여 크롤링을 중단합니다.");
+                            continueCrawling = false;
+                            break;
+                        }
+
                     } catch (Exception e) {
                         log.warn("개별 게시글 크롤링 중 오류가 발생했습니다: " + e.getMessage());
                         e.printStackTrace();
@@ -123,6 +141,9 @@ public class ClienCrawler implements ICrawler {
             } catch (IOException e) {
                 log.error("크롤링 중 오류가 발생했습니다: " + e.getMessage());
                 e.printStackTrace();
+            }
+            if (continueCrawling) {
+                page++;
             }
         }
         return posts;

@@ -24,15 +24,20 @@ public class HumorunivCrawler implements ICrawler {
     private final String baseUrl = "https://web.humoruniv.com/board/humor/list.html?table=pds&pg=%d";
     private final Pattern sourceIdPattern = Pattern.compile("id=\"li_chk_pds-(\\d+)\"");
 
-    @Override
-    public List<Post> crawl() {
-        return crawl(1);
-    }
+//    @Override
+//    public List<Post> crawl() {
+//        return crawl(1);
+//    }
 
     @Override
-    public List<Post> crawl(int pageCount) {
+    public List<Post> crawl(LocalDateTime until) {
         List<Post> posts = new ArrayList<>();
-        for (int page = 1; page <= pageCount; page++) {
+        int page = 1;
+        boolean continueCrawling = true;
+
+//      for (int page = 1; page <= pageCount; page++) {
+        while (continueCrawling) {
+
             // --- 페이지 요청 간 무작위 지연 시간 추가 ---
             try {
                 int randomDelay = (int) (Math.random() * 2000) + 1000; // 1초~3초 사이 지연
@@ -99,12 +104,19 @@ public class HumorunivCrawler implements ICrawler {
                         String timeStr = postElement.selectFirst("span.w_time").text();
                         LocalDateTime createdAt = LocalDateTime.parse(dateStr + " " + timeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
 
+                        // ✨ 게시글 날짜가 목표 날짜보다 이전이면 중단
+                        if (createdAt.isBefore(until)) {
+                            continueCrawling = false;
+                            break;
+                        }
+
                         Post post = Post.builder()
                                 .sourceId(sourceId)
                                 .title(title)
                                 .link(link)
                                 .author(author)
                                 .commentCount(commentCount)
+                                .viewCount(viewCount)
                                 .viewCount(viewCount)
                                 .recommendationCount(recommendationCount)
                                 .createdAt(createdAt)
@@ -118,9 +130,13 @@ public class HumorunivCrawler implements ICrawler {
                         e.printStackTrace();
                     }
                 }
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 log.error("크롤링 중 오류가 발생했습니다: " + e.getMessage());
                 e.printStackTrace();
+            }
+            if (continueCrawling) {
+                page++;
             }
         }
         return posts;

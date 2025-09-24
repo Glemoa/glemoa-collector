@@ -26,23 +26,26 @@ import java.util.regex.Pattern;
 public class ArcaLiveCrawler implements ICrawler {
 
 //    private final String url = "https://arca.live/b/live?p=1";
-    private final String baseUrl = "https://arca.live/b/live?p=1";
+    private final String baseUrl = "https://arca.live/b/live?p=%d";
     private final Pattern articleNoPattern = Pattern.compile("/b/live/(\\d+)");
 
-    @Override
-    public List<Post> crawl() {
-        return crawl(1);
-    }
+//    @Override
+//    public List<Post> crawl() {
+//        return crawl(1);
+//    }
 
     @Override
-    public List<Post> crawl(int pageCount) {
+    public List<Post> crawl(LocalDateTime until) {
         List<Post> posts = new ArrayList<>();
+        int page = 1;
+        boolean continueCrawling = true;
 
-        for (int page = 1; page <= pageCount; page++) {
+//      for (int page = 1; page <= pageCount; page++) {
+        while (continueCrawling) {
 
             // --- 페이지 요청 간 무작위 지연 시간 추가 ---
             try {
-                int randomDelay = (int) (Math.random() * 2000) + 1000; // 1초~3초 사이 지연
+                int randomDelay = (int) (Math.random() * 5000) + 1000; // 1초~3초 사이 지연
                 double delaySeconds = randomDelay / 1000.0;
                 log.info("페이지 요청 간 무작위 지연 시간 : " + delaySeconds + "ms");
                 Thread.sleep(randomDelay);
@@ -52,6 +55,7 @@ public class ArcaLiveCrawler implements ICrawler {
             // ----------------------------------------------
 
             String url = String.format(baseUrl, page);
+
             try {
                 Document doc = Jsoup.connect(url)
                         .header("User-Agent", "live.arca.android/1.0.0")
@@ -60,7 +64,7 @@ public class ArcaLiveCrawler implements ICrawler {
                 // 공지사항을 제외한 일반 게시글 목록 선택
                 Elements postElements = doc.select("div.vrow.hybrid:not(.notice)");
 
-                log.info("ArcaLive 크롤링 결과: " + postElements.size());
+                log.info("ArcaLive " + page + "페이지 크롤링 결과: " + postElements.size());
 
                 for (Element postElement : postElements) {
                     try {
@@ -137,6 +141,12 @@ public class ArcaLiveCrawler implements ICrawler {
                             }
                         }
 
+                        // ✨ 게시글 날짜가 목표 날짜보다 이전이면 중단
+                        if (createdAt.isBefore(until)) {
+                            continueCrawling = false;
+                            break;
+                        }
+
                         Post post = Post.builder()
                                 .sourceId(sourceId)
                                 .title(title)
@@ -160,6 +170,9 @@ public class ArcaLiveCrawler implements ICrawler {
             } catch (IOException e) {
                 log.warn("크롤링 중 오류가 발생했습니다: " + e.getMessage());
                 e.printStackTrace();
+            }
+            if (continueCrawling) {
+                page++;
             }
         }
         return posts;

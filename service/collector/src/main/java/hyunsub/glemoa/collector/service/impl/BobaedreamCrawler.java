@@ -30,16 +30,19 @@ public class BobaedreamCrawler implements ICrawler {
     private final String baseUrl = "https://www.bobaedream.co.kr/board/bulletin/list.php?code=best&s_cate=&maker_no=&model_no=&or_gu=10&or_se=desc&s_selday=&pagescale=70&info3=&noticeShow=&s_select=Subject&s_key=&level_no=&bestCode=&bestDays=&bestbbs=&vdate=&type=list&page=%d";
     private final Pattern sourceIdPattern = Pattern.compile("No=(\\d+)");
 
-    @Override
-    public List<Post> crawl() {
-        return crawl(1);
-    }
+//    @Override
+//    public List<Post> crawl() {
+//        return crawl(1);
+//    }
 
     @Override
-    public List<Post> crawl(int pageCount) {
+    public List<Post> crawl(LocalDateTime until) {
         List<Post> posts = new ArrayList<>();
+        int page = 1;
+        boolean continueCrawling = true;
 
-        for (int page = 1; page <= pageCount; page++) {
+//      for (int page = 1; page <= pageCount; page++) {
+        while (continueCrawling) {
 
             // --- 페이지 요청 간 무작위 지연 시간 추가 ---
             try {
@@ -60,7 +63,8 @@ public class BobaedreamCrawler implements ICrawler {
 
                 Elements postElements = doc.select("table#boardlist tbody tr[itemscope]");
 
-                log.info("Bobaedream 크롤링 결과: " + postElements.size());
+                log.info("Bobaedream " + page + "페이지 크롤링 결과: " + postElements.size());
+//                log.info("Bobaedream 크롤링 결과: " + postElements.size());
 
                 for (Element postElement : postElements) {
                     try {
@@ -129,6 +133,12 @@ public class BobaedreamCrawler implements ICrawler {
                             }
                         }
 
+                        // ✨ 게시글 날짜가 목표 날짜보다 이전이면 중단
+                        if (createdAt.isBefore(until)) {
+                            continueCrawling = false;
+                            break;
+                        }
+
                         Post post = Post.builder()
                                 .sourceId(sourceId)
                                 .title(title)
@@ -151,6 +161,9 @@ public class BobaedreamCrawler implements ICrawler {
             } catch (IOException e) {
                 log.warn("크롤링 중 오류가 발생했습니다: " + e.getMessage());
                 e.printStackTrace();
+            }
+            if (continueCrawling) {
+                page++;
             }
         }
         return posts;
