@@ -18,7 +18,9 @@ import java.util.List;
 @Slf4j
 @Component
 public class DcInsideCrawler implements ICrawler {
-    private final String baseUrl = "https://gall.dcinside.com/board/lists/?id=dcbest&list_num=100&sort_type=N&search_head=6&page=%d";
+//    https://gall.dcinside.com/board/lists/?id=dcbest&page=1&_dcbest=9
+//    private final String baseUrl = "https://gall.dcinside.com/board/lists/?id=dcbest&list_num=100&sort_type=N&search_head=6&page=%d";
+    private final String baseUrl = "https://gall.dcinside.com/board/lists/?id=dcbest&page=%d&_dcbest=9";
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 //    @Override

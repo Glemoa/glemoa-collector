@@ -196,6 +196,13 @@ private final String todayUrl = "https://pann.nate.com/talk/ranking?rankingType=
                         if (titleLinkElement == null) continue;
                         String title = titleLinkElement.text().trim();
                         String link = basePannUrl + titleLinkElement.attr("href");
+
+                        // URL 정규화: '?' 뒤의 쿼리 파라미터를 제거하여 항상 동일한 link를 보장합니다.
+                        int queryIndex = link.indexOf('?');
+                        if (queryIndex != -1) {
+                            link = link.substring(0, queryIndex);
+                        }
+
                         Matcher matcher = articleNoPattern.matcher(link);
                         Long sourceId = null;
                         if (matcher.find()) {
@@ -238,7 +245,7 @@ private final String todayUrl = "https://pann.nate.com/talk/ranking?rankingType=
                                 .viewCount(viewCount)
                                 .recommendationCount(recommendationCount)
                                 .createdAt(targetDate.atStartOfDay())
-                                .source("pann")
+                                .source("natepann")
                                 .build();
                         posts.add(post);
                     } catch (Exception e) {

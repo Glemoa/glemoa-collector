@@ -3,6 +3,7 @@ package hyunsub.glemoa.collector.service.impl;
 import hyunsub.glemoa.collector.entity.Post;
 import hyunsub.glemoa.collector.service.ICrawler;
 import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -39,11 +40,19 @@ public class FmkoreaCrawler implements ICrawler {
 
     private void refreshCookies(String userAgent) throws IOException {
         if (cookies == null || cookieRefreshTime == null || LocalDateTime.now().isAfter(cookieRefreshTime)) {
-            log.info("fmkorea.com 쿠키가 없거나 만료되어 갱신을 시도합니다.");
-            this.cookies = Jsoup.connect(mainUrl)
+            log.info("fmkorea.com 쿠키가 없거나 만료되어 갱신을 시도합니다. (Referer: Google)");
+
+            String firstPageUrl = String.format(baseUrl, 1);
+
+            Connection.Response response = Jsoup.connect(firstPageUrl)
                     .userAgent(userAgent)
-                    .execute()
-                    .cookies();
+                    .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7")
+                    .header("Accept-Language", "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7")
+                    .header("Referer", "https://www.google.com/") // Referer를 Google로 설정
+                    .timeout(10000)
+                    .execute();
+
+            this.cookies = response.cookies();
             this.cookieRefreshTime = LocalDateTime.now().plusMinutes(10);
             log.info("fmkorea.com 쿠키 갱신 완료. 다음 갱신 예정: {}", this.cookieRefreshTime);
         }

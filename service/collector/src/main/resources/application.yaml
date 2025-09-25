@@ -18,37 +18,6 @@ spring:
     hibernate:
       ddl-auto: create
 
-#crawler:
-#  initial-pages:
-#    ppomppu: 3
-#    fmkorea: 3
-#    dcinside: 3
-#    clien: 3
-#    ruliweb: 3
-#    theqoo: 3
-#    etoland: 3
-#    humoruniv: 3
-#    bobaedream: 3
-#    mlbpark: 3
-#    arcalive: 3
-#    inven: 3
-#    natepann: 3
-#    ppomppu: 30
-#    fmkorea: 30
-#    dcinside: 30
-#    clien: 30
-#    ruliweb: 30
-#    theqoo: 30
-#    etoland: 30
-#    humoruniv: 30
-#    bobaedream: 30
-#    mlbpark: 30
-#    arcalive: 30
-#    inven: 30
-#    natepann: 30
-#    inven: 3
-#    natepann: 3
-
 glemoa:
   scheduler:
     # fixed-delay-seconds: 60 # 더 이상 사용되지 않음
@@ -57,42 +26,55 @@ glemoa:
   batch-size: 100
   crawlers:
     - name: arcaLiveCrawler
-      cron: "0 */15 * * * *" # 15분마다
-      enabled: true
+      cron: "0 */5 * * * *" # 5분마다
+      lookback-minutes: 60
+      enabled: false
     - name: bobaedreamCrawler
-      cron: "0 */20 * * * *" # 20분마다
-      enabled: true
+      cron: "0 */5 * * * *" # 5분마다
+      lookback-minutes: 60
+      enabled: false
     - name: clienCrawler
-      cron: "0 */10 * * * *" # 10분마다
-      enabled: true
+      cron: "0 */5 * * * *" # 5분마다
+      lookback-minutes: 60
+      enabled: false
     - name: dcInsideCrawler
-      cron: "0 */1 * * * *"  # 1분마다
-      enabled: true
-    - name: etolandCrawler
-      cron: "0 0 * * * *"    # 매시 정각
-      enabled: true
-    - name: fmkoreaCrawler
       cron: "0 */5 * * * *"  # 5분마다
+      lookback-minutes: 60
+      enabled: false
+    - name: etolandCrawler
+      cron: "0 */5 * * * *"    # 5분마다
+      lookback-minutes: 60
+      enabled: false
+    - name: fmkoreaCrawler
+      cron: "0 */1 * * * *"  # 5분마다
+      lookback-minutes: 60
       enabled: true
     - name: humorunivCrawler
-      cron: "0 */30 * * * *" # 30분마다
-      enabled: true
+      cron: "0 */5 * * * *" # 5분마다
+      lookback-minutes: 60
+      enabled: false
     - name: invenCrawler
-      cron: "0 */10 * * * *" # 10분마다
-      enabled: true
+      cron: "0 */5 * * * *" # 5분마다
+      lookback-minutes: 60
+      enabled: false
     - name: mlbparkCrawler
-      cron: "0 */15 * * * *" # 15분마다
-      enabled: true
+      cron: "0 */5 * * * *" # 5분마다
+      lookback-minutes: 60
+      enabled: false
     - name: natePannCrawler
-      cron: "0 */20 * * * *" # 20분마다
-      enabled: true
+      cron: "0 */5 * * * *" # 5분마다
+      lookback-minutes: 60
+      enabled: false
     - name: ppomppuCrawler
-      cron: "0 */10 * * * *" # 10분마다
-      enabled: true
+      cron: "0 */5 * * * *" # 5분마다
+      lookback-minutes: 60
+      enabled: false
     - name: ruliwebCrawler
-      cron: "0 */10 * * * *" # 10분마다
-      enabled: true
+      cron: "0 */5 * * * *" # 5분마다
+      lookback-minutes: 60
+      enabled: false
     - name: theqooCrawler
       cron: "0 */5 * * * *"  # 5분마다
-      enabled: true
+      lookback-minutes: 60
+      enabled: false
 

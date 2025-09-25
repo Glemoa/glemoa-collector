@@ -12,6 +12,7 @@ import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Slf4j
 @Component
@@ -28,6 +29,9 @@ public class DynamicCrawlerScheduler implements InitializingBean {
     // 키(Key): 스프링 컨테이너에 등록된 빈의 이름 (일반적으로 클래스 이름의 첫 글자를 소문자로 바꾼 이름)입니다.
     // 값(Value): 해당 빈의 실제 객체 인스턴스입니다.
     private final Map<String, ICrawler> crawlers;
+
+    // Reentrant = "재진입 가능" 이라는 뜻.
+    private final ReentrantLock crawlerLock = new ReentrantLock();
 
     @Value("${glemoa.scheduler.initial-crawl-days:1}")
     private int initialCrawlDays;
@@ -53,7 +57,7 @@ public class DynamicCrawlerScheduler implements InitializingBean {
                         Trigger는 cron 표현식(예: 매월 1일 0시 0분에 실행) 같은 정교한 규칙을 담을 수 있습니다.
                      */
                     taskScheduler.schedule(
-                        new CrawlerJob(crawler, postRepository, initialCrawlDays, batchSize),
+                        new CrawlerJob(crawler, postRepository, initialCrawlDays, batchSize, config.getLookbackMinutes(), crawlerLock),
                         new CronTrigger(config.getCron())
                     );
                 } else {

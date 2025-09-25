@@ -20,6 +20,7 @@ public class CrawlerProperties {
     public static class CrawlerConfig {
         private String name;
         private String cron;
+        private int lookbackMinutes;
         private boolean enabled;
     }
 }
