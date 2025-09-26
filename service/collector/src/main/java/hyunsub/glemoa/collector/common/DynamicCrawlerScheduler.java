@@ -33,9 +33,6 @@ public class DynamicCrawlerScheduler implements InitializingBean {
     // Reentrant = "재진입 가능" 이라는 뜻.
     private final ReentrantLock crawlerLock = new ReentrantLock();
 
-    @Value("${glemoa.scheduler.initial-crawl-days:1}")
-    private int initialCrawlDays;
-
     @Value("${glemoa.batch-size:100}")
     private int batchSize;
 
@@ -57,7 +54,8 @@ public class DynamicCrawlerScheduler implements InitializingBean {
                         Trigger는 cron 표현식(예: 매월 1일 0시 0분에 실행) 같은 정교한 규칙을 담을 수 있습니다.
                      */
                     taskScheduler.schedule(
-                        new CrawlerJob(crawler, postRepository, initialCrawlDays, batchSize, config.getLookbackMinutes(), crawlerLock),
+                        new CrawlerJob(crawler, postRepository, config.getInitialCrawlDays(), batchSize,
+                                config.getLookbackMinutes(), config.getRestartCrawlMinutes(), crawlerLock),
                         new CronTrigger(config.getCron())
                     );
                 } else {

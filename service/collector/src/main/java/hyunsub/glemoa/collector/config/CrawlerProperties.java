@@ -21,6 +21,8 @@ public class CrawlerProperties {
         private String name;
         private String cron;
         private int lookbackMinutes;
+        private int initialCrawlDays;
+        private int restartCrawlMinutes;
         private boolean enabled;
     }
 }
