@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Random;
 
 @Slf4j
-@Component
+//@Component
 public class FmkoreaCrawler implements ICrawler {
 
     private static final List<String> USER_AGENTS = List.of(

@@ -111,16 +111,28 @@ public class InvenCrawler implements ICrawler {
                         String timeStr = postElement.selectFirst("td.date").text().trim();
                         LocalDateTime createdAt;
 
-                        try {
-                            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
-                            createdAt = LocalDateTime.of(LocalDate.now(), LocalTime.parse(timeStr, timeFormatter));
-                        } catch (DateTimeParseException e) {
-                            DateTimeFormatter fmt = DateTimeFormatter.ofPattern("MM-dd");
-                            MonthDay md = MonthDay.parse(timeStr, fmt);
-                            LocalDate localDate = md.atYear(LocalDate.now().getYear());
-                            createdAt = localDate.atStartOfDay();
-//                            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM-dd");
-//                            createdAt = LocalDate.parse(timeStr, dateFormatter).atStartOfDay();
+                        if (timeStr.contains(":")) { // HH:mm format for today/yesterday
+                            LocalTime postTime = LocalTime.parse(timeStr, DateTimeFormatter.ofPattern("HH:mm"));
+                            LocalDate postDate = LocalDate.now();
+
+                            // If the parsed time is in the future compared to now, it must be from yesterday
+                            if (postTime.isAfter(LocalTime.now())) {
+                                postDate = postDate.minusDays(1);
+                            }
+                            createdAt = LocalDateTime.of(postDate, postTime);
+
+                        } else { // MM-dd format for older posts
+                            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM-dd");
+                            // Use MonthDay to parse just the month and day
+                            MonthDay monthDay = MonthDay.parse(timeStr, dateFormatter);
+                            // Apply the current year
+                            LocalDate postDate = monthDay.atYear(LocalDate.now().getYear());
+
+                            // If the parsed date is in the future, it must be from last year
+                            if (postDate.isAfter(LocalDate.now())) {
+                                postDate = postDate.minusYears(1);
+                            }
+                            createdAt = postDate.atStartOfDay();
                         }
 
                         // ✨ 게시글 날짜가 목표 날짜보다 이전이면 중단
