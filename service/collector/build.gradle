@@ -1,6 +1,28 @@
+/*
+ [Gemini가 수정한 내용]
+ - 최종 목표: 이 `collector` 모듈을 실행 가능한 Spring Boot 애플리케이션으로 명확히 지정합니다.
+ - `plugins { ... }`: 루트 `build.gradle`에서 플러그인 적용을 `apply false`로 변경했기 때문에,
+                     이 모듈이 Spring Boot 애플리케이션임을 명시적으로 선언해주는 코드를 추가했습니다.
+ - `dependencies { ... }`: Selenium을 사용하기 위해 `selenium-java` 의존성을 추가했습니다.
+ - `bootJar { ... }`: 이 모듈을 실행 가능한 Jar 파일로 만들기 위해, `bootJar` 기능을 활성화하고(`enabled = true`),
+                     애플리케이션의 시작점인 `main` 클래스의 전체 경로를 정확히 지정해주었습니다.
+*/
+plugins {
+    id 'org.springframework.boot'
+}
+
 dependencies {
     // Jsoup 라이브러리
     implementation 'org.jsoup:jsoup:1.14.3'
+    // Selenium 라이브러리
+    implementation 'org.seleniumhq.selenium:selenium-java:4.21.0'
+    // WebDriver 자동 관리를 위한 라이브러리
+    implementation 'io.github.bonigarcia:webdrivermanager:5.8.0'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     runtimeOnly 'com.mysql:mysql-connector-j'
+}
+
+bootJar {
+    enabled = true
+    mainClass = 'hyunsub.glemoa.collector.CollectorApplication'
 }

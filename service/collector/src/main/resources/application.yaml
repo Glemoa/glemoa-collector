@@ -3,6 +3,10 @@ server.port: 8080
 spring:
   application:
     name: collector-service
+  task:
+    scheduling:
+      pool:
+        size: 13
   datasource:
     # MySQL 드라이버 지정
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -24,79 +28,79 @@ glemoa:
     - name: arcaLiveCrawler
       cron: "0 */5 * * * *" # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 1
+      initial-crawl-days: 30
       restart-crawl-minutes: 180
-      enabled: true
+      enabled: false
     - name: bobaedreamCrawler
       cron: "0 */5 * * * *" # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 1
+      initial-crawl-days: 30
       restart-crawl-minutes: 180
-      enabled: true
+      enabled: false
     - name: clienCrawler
       cron: "0 */5 * * * *" # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 1
+      initial-crawl-days: 30
       restart-crawl-minutes: 180
-      enabled: true
+      enabled: false
     - name: dcInsideCrawler
       cron: "0 */5 * * * *"  # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 1
+      initial-crawl-days: 30
       restart-crawl-minutes: 180
-      enabled: true
+      enabled: false
     - name: etolandCrawler
       cron: "0 */5 * * * *"    # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 1
+      initial-crawl-days: 30
       restart-crawl-minutes: 180
-      enabled: true
+      enabled: false
     - name: fmkoreaCrawler
       cron: "0 */1 * * * *"  # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 1
+      initial-crawl-days: 30
       restart-crawl-minutes: 180
-      enabled: false
+      enabled: true
     - name: humorunivCrawler
       cron: "0 */5 * * * *" # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 1
+      initial-crawl-days: 30
       restart-crawl-minutes: 180
-      enabled: true
+      enabled: false
     - name: invenCrawler
       cron: "0 */5 * * * *" # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 1
+      initial-crawl-days: 30
       restart-crawl-minutes: 180
-      enabled: true
+      enabled: false
     - name: mlbparkCrawler
       cron: "0 */5 * * * *" # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 1
+      initial-crawl-days: 30
       restart-crawl-minutes: 180
-      enabled: true
+      enabled: false
     - name: natePannCrawler
       cron: "0 */5 * * * *" # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 1
+      initial-crawl-days: 30
       restart-crawl-minutes: 180
-      enabled: true
+      enabled: false
     - name: ppomppuCrawler
       cron: "0 */5 * * * *" # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 1
+      initial-crawl-days: 30
       restart-crawl-minutes: 180
-      enabled: true
+      enabled: false
     - name: ruliwebCrawler
       cron: "0 */5 * * * *" # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 1
+      initial-crawl-days: 30
       restart-crawl-minutes: 180
-      enabled: true
+      enabled: false
     - name: theqooCrawler
       cron: "0 */5 * * * *"  # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 1
+      initial-crawl-days: 30
       restart-crawl-minutes: 180
-      enabled: true
+      enabled: false
 

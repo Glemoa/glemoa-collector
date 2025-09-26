@@ -45,7 +45,7 @@ public class InvenCrawler implements ICrawler {
 
             // --- 페이지 요청 간 무작위 지연 시간 추가 ---
             try {
-                int randomDelay = (int) (Math.random() * 5000) + 1000; // 1초~3초 사이 지연
+                int randomDelay = (int) (Math.random() * 2000) + 1000; // 1초~3초 사이 지연
                 double delaySeconds = randomDelay / 1000.0;
                 log.info("페이지 요청 간 무작위 지연 시간 : " + delaySeconds + "ms");
                 Thread.sleep(randomDelay);

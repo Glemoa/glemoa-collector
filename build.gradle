@@ -1,6 +1,14 @@
+/*
+ [Gemini가 수정한 내용]
+ - 최종 목표: 여러 모듈을 가진 프로젝트에서 `collector` 모듈만 실행 가능한 Spring Boot 애플리케이션으로 만들고, 다른 모듈은 라이브러리로 취급하여 빌드 오류를 해결합니다.
+ - 문제 원인: `plugins` 블록에 선언된 `id 'org.springframework.boot'`가 소스 코드가 없는 루트 프로젝트에도 적용되어 `main` 클래스를 찾지 못하는 오류가 발생했습니다.
+ - 해결: `apply false`를 추가하여, Spring Boot 플러그인을 루트 프로젝트에 즉시 적용하지 않고 버전만 중앙에서 관리하도록 변경했습니다.
+        이제 하위 모듈은 이 플러그인이 필요할 경우 명시적으로 선언해야만 적용됩니다.
+*/
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.5.6'
+    // ✅ [수정] Spring Boot 플러그인을 버전만 관리하고, 하위 모듈에서 필요할 때 선택적으로 적용하도록 변경
+    id 'org.springframework.boot' version '3.5.6' apply false
     id 'io.spring.dependency-management' version '1.1.7'
 }
 
@@ -26,7 +34,6 @@ allprojects {
     }
 
     apply plugin: 'java'
-    apply plugin: 'org.springframework.boot'
     apply plugin: 'io.spring.dependency-management'
 
     java {
