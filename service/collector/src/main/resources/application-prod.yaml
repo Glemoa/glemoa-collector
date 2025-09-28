@@ -28,25 +28,25 @@ glemoa:
       lookback-minutes: 60
       initial-crawl-days: 1
       restart-crawl-minutes: 180
-      enabled: true
+      enabled: false
     - name: clienCrawler
       cron: "0 */5 * * * *" # 5분마다
       lookback-minutes: 60
       initial-crawl-days: 1
       restart-crawl-minutes: 180
-      enabled: true
+      enabled: false
     - name: dcInsideCrawler
       cron: "0 */5 * * * *"  # 5분마다
       lookback-minutes: 60
       initial-crawl-days: 1
       restart-crawl-minutes: 180
-      enabled: true
+      enabled: false
     - name: etolandCrawler
       cron: "0 */5 * * * *"    # 5분마다
       lookback-minutes: 60
       initial-crawl-days: 1
       restart-crawl-minutes: 180
-      enabled: true
+      enabled: false
     - name: fmkoreaCrawler
       cron: "0 */5 * * * *"  # 5분마다
       lookback-minutes: 60
@@ -64,19 +64,19 @@ glemoa:
       lookback-minutes: 60
       initial-crawl-days: 1
       restart-crawl-minutes: 180
-      enabled: true
+      enabled: false
     - name: mlbparkCrawler
       cron: "0 */5 * * * *" # 5분마다
       lookback-minutes: 60
       initial-crawl-days: 1
       restart-crawl-minutes: 180
-      enabled: true
+      enabled: false
     - name: natePannCrawler
       cron: "0 */5 * * * *" # 5분마다
       lookback-minutes: 60
       initial-crawl-days: 1
       restart-crawl-minutes: 180
-      enabled: true
+      enabled: false
     - name: ppomppuCrawler
       cron: "0 */5 * * * *" # 5분마다
       lookback-minutes: 60
