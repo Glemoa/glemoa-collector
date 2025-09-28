@@ -90,6 +90,6 @@ jobs:
             -Dspring.datasource.url=jdbc:mysql://${{ secrets.SERVER_HOST }}:3306/Glemoa \
             -Dspring.datasource.username=${{ secrets.DB_USERNAME }} \
             -Dspring.datasource.password=${{ secrets.DB_PASSWORD }} \
-            collector-service.jar > app.log 2>&1 &
+            collector.jar > app.log 2>&1 &
             
             echo "Deployment script executed."
