@@ -65,7 +65,7 @@ jobs:
       - name: Transfer JAR to server
         uses: appleboy/scp-action@master
         with:
-          host: ${{ secrets.SERVER_HOST }}
+          host: ${{ secrets.SERVER_HOST }} # Vultr 공인 IP 사용
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "*.jar"
@@ -81,10 +81,18 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           command_timeout: 10m
+            # 1. 크롤러 실행 직전에 Tailscale Exit Node 활성화
+            # 이 명령어가 크롤링 시 IP 우회를 담당합니다.
+#            echo 'y' | sudo tailscale up --exit-node=100.82.178.115
+            
+            # 2. 애플리케이션 실행
+            # 이 애플리케이션은 이제 Exit Node를 통해 아웃바운드 트래픽을 내보냅니다.
+#            nohup java -jar \
           script: |
             cd /root
             pkill -f 'collector.jar' || true
-            sleep 10
+            sleep 10          
+            echo 'y' | sudo tailscale up --exit-node=100.82.178.115
             nohup java -jar \
             -Dspring.profiles.active=prod \
             -Dspring.datasource.url=jdbc:mysql://${{ secrets.SERVER_HOST }}:3306/Glemoa \
