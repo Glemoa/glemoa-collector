@@ -71,7 +71,7 @@ jobs:
           source: "*.jar"
           target: "/root/" # 서버의 배포 디렉토리
 
-      # 3. Execute deployment script on server (SSH): # #
+      # 3. Execute deployment script on server (SSH):
       # ssh-action이라는 외부 액션을 사용하여 원격 서버에 접속(ssh)한 후, 미리 정의된 배포 스크립트(script)를 실행합니다.
       # 이 스크립트는 일반적으로 다음의 역할을 수행합니다.
       - name: Execute deployment script on server
