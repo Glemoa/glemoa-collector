@@ -74,28 +74,30 @@ jobs:
       # 3. Execute deployment script on server (SSH):
       # ssh-action이라는 외부 액션을 사용하여 원격 서버에 접속(ssh)한 후, 미리 정의된 배포 스크립트(script)를 실행합니다.
       # 이 스크립트는 일반적으로 다음의 역할을 수행합니다...
-      - name: Execute deployment script on server
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SERVER_HOST }} # vultr 말고 tailScale ip주소 입력해봄.
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          command_timeout: 10m
-            # 1. 크롤러 실행 직전에 Tailscale Exit Node 활성화
-            # 이 명령어가 크롤링 시 IP 우회를 담당합니다.
-#            echo 'y' | sudo tailscale up --exit-node=100.82.178.115
-            
-            # 2. 애플리케이션 실행
-            # 이 애플리케이션은 이제 Exit Node를 통해 아웃바운드 트래픽을 내보냅니다.
+
+      # 변경점 : 크롤러 애플리케이션의 ip 주소 우회등.. 구조적 제약 때문에 scp 만 자동화 해주고 ssh 를 통한 jar 조작은 직접 실행하는 식으로 변경하였다.
+#      - name: Execute deployment script on server
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: ${{ secrets.SERVER_HOST }} # vultr 말고 tailScale ip주소 입력해봄.
+#          username: ${{ secrets.SERVER_USER }}
+#          key: ${{ secrets.SSH_PRIVATE_KEY }}
+#          command_timeout: 10m
+#            # 1. 크롤러 실행 직전에 Tailscale Exit Node 활성화
+#            # 이 명령어가 크롤링 시 IP 우회를 담당합니다.
+##            echo 'y' | sudo tailscale up --exit-node=100.82.178.115
+#
+#            # 2. 애플리케이션 실행
+#            # 이 애플리케이션은 이제 Exit Node를 통해 아웃바운드 트래픽을 내보냅니다.
+##            nohup java -jar \
+#          script: |
+#            cd /root
+#            pkill -f 'collector.jar' || true
+#            sleep 10
 #            nohup java -jar \
-          script: |
-            cd /root
-            pkill -f 'collector.jar' || true
-            sleep 10          
-            nohup java -jar \
-            -Dspring.profiles.active=prod \
-            -Dspring.datasource.url=jdbc:mysql://${{ secrets.SERVER_HOST }}:3306/Glemoa \
-            -Dspring.datasource.username=${{ secrets.DB_USERNAME }} \
-            -Dspring.datasource.password=${{ secrets.DB_PASSWORD }} \
-            collector.jar > app.log 2>&1 & disown
-            echo "Deployment script executed."
+#            -Dspring.profiles.active=prod \
+#            -Dspring.datasource.url=jdbc:mysql://${{ secrets.SERVER_HOST }}:3306/Glemoa \
+#            -Dspring.datasource.username=${{ secrets.DB_USERNAME }} \
+#            -Dspring.datasource.password=${{ secrets.DB_PASSWORD }} \
+#            collector.jar > app.log 2>&1 & disown
+#            echo "Deployment script executed."
