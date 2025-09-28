@@ -3,16 +3,16 @@ spring:
     # MySQL 드라이버 지정
     driver-class-name: com.mysql.cj.jdbc.Driver
     # 도커 컨테이너로 3306 포트로 접속할 수 있도록 띄어놓은 db와 연결
-    URL: jdbc:mysql://127.0.0.1:3306/Glemoa
-    username: root
-    password: yourpassword
+    URL: jdbc:mysql://${DB_HOST}:3306/Glemoa
+    username: ${DB_USERNAME} # 환경 변수로 변경
+    password: ${DB_PASSWORD} # 환경 변수로 변경
   jpa:
     # 데이터 베이스 플랫폼에는 MySQL DB를 사용할 것이기 때문에 이렇게 설정
     database-platform: org.hibernate.dialect.MySQLDialect
     open-in-view: false
     show-sql: true
     hibernate:
-      ddl-auto: none
+      ddl-auto: create
 
 glemoa:
   batch-size: 100
