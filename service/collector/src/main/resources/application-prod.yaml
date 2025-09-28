@@ -20,78 +20,78 @@ glemoa:
     - name: arcaLiveCrawler
       cron: "0 */5 * * * *" # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 30
+      initial-crawl-days: 1
       restart-crawl-minutes: 180
       enabled: true
     - name: bobaedreamCrawler
       cron: "0 */5 * * * *" # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 30
+      initial-crawl-days: 1
       restart-crawl-minutes: 180
       enabled: true
     - name: clienCrawler
       cron: "0 */5 * * * *" # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 30
+      initial-crawl-days: 1
       restart-crawl-minutes: 180
       enabled: true
     - name: dcInsideCrawler
       cron: "0 */5 * * * *"  # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 30
+      initial-crawl-days: 1
       restart-crawl-minutes: 180
       enabled: true
     - name: etolandCrawler
       cron: "0 */5 * * * *"    # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 30
+      initial-crawl-days: 1
       restart-crawl-minutes: 180
       enabled: true
     - name: fmkoreaCrawler
       cron: "0 */5 * * * *"  # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 30
+      initial-crawl-days: 1
       restart-crawl-minutes: 180
       enabled: true
     - name: humorunivCrawler
       cron: "0 */5 * * * *" # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 30
+      initial-crawl-days: 1
       restart-crawl-minutes: 180
       enabled: true
     - name: invenCrawler
       cron: "0 */5 * * * *" # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 30
+      initial-crawl-days: 1
       restart-crawl-minutes: 180
       enabled: true
     - name: mlbparkCrawler
       cron: "0 */5 * * * *" # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 30
+      initial-crawl-days: 1
       restart-crawl-minutes: 180
       enabled: true
     - name: natePannCrawler
       cron: "0 */5 * * * *" # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 30
+      initial-crawl-days: 1
       restart-crawl-minutes: 180
       enabled: true
     - name: ppomppuCrawler
       cron: "0 */5 * * * *" # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 30
+      initial-crawl-days: 1
       restart-crawl-minutes: 180
       enabled: true
     - name: ruliwebCrawler
       cron: "0 */5 * * * *" # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 30
+      initial-crawl-days: 1
       restart-crawl-minutes: 180
       enabled: true
     - name: theqooCrawler
       cron: "0 */5 * * * *"  # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 30
+      initial-crawl-days: 1
       restart-crawl-minutes: 180
       enabled: true
