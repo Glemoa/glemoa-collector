@@ -92,5 +92,7 @@ jobs:
             -Dspring.datasource.password=${{ secrets.DB_PASSWORD }} \
             collector.jar > app.log 2>&1 &
             
+            sleep 2
+            
             echo "Deployment script executed."
             exit 0
