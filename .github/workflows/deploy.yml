@@ -92,7 +92,6 @@ jobs:
             cd /root
             pkill -f 'collector.jar' || true
             sleep 10          
-            echo 'y' | sudo tailscale up --exit-node=100.82.178.115
             nohup java -jar \
             -Dspring.profiles.active=prod \
             -Dspring.datasource.url=jdbc:mysql://${{ secrets.SERVER_HOST }}:3306/Glemoa \
