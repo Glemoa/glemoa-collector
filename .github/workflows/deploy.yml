@@ -83,7 +83,7 @@ jobs:
           script: |
             cd /root
             
-            pkill -f 'collector-service.jar' || true
+            pkill -f 'collector.jar' || true
             
             nohup java -jar \
             -Dspring.profiles.active=prod \
@@ -93,3 +93,4 @@ jobs:
             collector.jar > app.log 2>&1 &
             
             echo "Deployment script executed."
+            exit 0
