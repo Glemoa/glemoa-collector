@@ -80,6 +80,8 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script_stop: true
+          command_timeout: 10m
           script: |
             cd /root
             
@@ -90,7 +92,7 @@ jobs:
             -Dspring.datasource.url=jdbc:mysql://${{ secrets.SERVER_HOST }}:3306/Glemoa \
             -Dspring.datasource.username=${{ secrets.DB_USERNAME }} \
             -Dspring.datasource.password=${{ secrets.DB_PASSWORD }} \
-            collector.jar > app.log 2>&1 &
+            collector.jar > app.log 2>&1 & disown
             
             sleep 2
             
