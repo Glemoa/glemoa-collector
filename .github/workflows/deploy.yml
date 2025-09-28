@@ -84,11 +84,12 @@ jobs:
           script: |
             cd /root
             pkill -f 'collector.jar' || true
+            sleep 5
             nohup java -jar \
             -Dspring.profiles.active=prod \
             -Dspring.datasource.url=jdbc:mysql://${{ secrets.SERVER_HOST }}:3306/Glemoa \
             -Dspring.datasource.username=${{ secrets.DB_USERNAME }} \
             -Dspring.datasource.password=${{ secrets.DB_PASSWORD }} \
             collector.jar > app.log 2>&1 & disown
-            sleep 2
+            sleep 5
             echo "Deployment script executed."
