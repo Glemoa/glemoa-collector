@@ -36,7 +36,7 @@ glemoa:
       restart-crawl-minutes: 180
       enabled: true
     - name: dcInsideCrawler
-      cron: "0 */5 * * * *"  # 5분마다
+      cron: "0 */5 * * * *"  # 5분마다e
       lookback-minutes: 60
       initial-crawl-days: 30
       restart-crawl-minutes: 180
