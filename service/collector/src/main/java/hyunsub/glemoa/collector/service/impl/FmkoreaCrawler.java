@@ -66,6 +66,8 @@ public class FmkoreaCrawler implements ICrawler {
                 Document doc = Jsoup.parse(driver.getPageSource());
                 Elements postElements = doc.select("table.bd_lst tbody tr:not(.notice)");
 
+                log.info("Fmkorea " + page + "페이지 크롤링 결과: " + postElements.size());
+
                 if (postElements.isEmpty()) {
                     log.info("[FmkoreaCrawler] 페이지 {}에 더 이상 게시글이 없어 크롤링을 중단합니다.", page);
                     break;

@@ -50,7 +50,7 @@ public class CrawlerJob implements Runnable {
                             .map(post -> post.getCreatedAt()) // 메서드 참조를 람다 표현식으로 변경
                             .orElse(LocalDateTime.now()); // 데이터가 없는 예외적인 경우 현재 시간으로 설정
 
-                    // 주기적 크롤링 시간(lookBackMinutes)보다 마지막 게시물이 더 오래되었으면 공백 발생으로 간주
+                    // (cron 분 마다 게시글을 업데이트 및 둘러보는 시간) = lookBackMinutes 보다 마지막 게시물이 더 오래되었으면 공백 발생으로 간주
                     if (lastPostDate.isBefore(LocalDateTime.now().minusMinutes(lookBackMinutes))) {
                         // 시나리오 2: 재시작 또는 공백 발생
                         // yml의 'restart-crawl-minutes' 값을 사용합니다.

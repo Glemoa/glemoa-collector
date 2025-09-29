@@ -3,13 +3,13 @@ package hyunsub.glemoa.collector.service.impl;
 import hyunsub.glemoa.collector.entity.Post;
 import hyunsub.glemoa.collector.service.ICrawler;
 import lombok.extern.slf4j.Slf4j;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -40,41 +40,43 @@ public class ArcaLiveCrawler implements ICrawler {
         int page = 1;
         boolean continueCrawling = true;
 
-//      for (int page = 1; page <= pageCount; page++) {
-        while (continueCrawling) {
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless");
+        options.addArguments("--disable-gpu");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--remote-allow-origins=*");
+        options.addArguments("user-agent=live.arca.android/1.0.0");
 
-            // --- 페이지 요청 간 무작위 지연 시간 추가 ---
-            try {
-                int randomDelay = (int) (Math.random() * 2000) + 1000; // 1초~3초 사이 지연
-                double delaySeconds = randomDelay / 1000.0;
-                log.info("페이지 요청 간 무작위 지연 시간 : " + delaySeconds + "ms");
-                Thread.sleep(randomDelay);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-            // ----------------------------------------------
+        WebDriver driver = new ChromeDriver(options);
 
-            String url = String.format(baseUrl, page);
+        try {
+            while (continueCrawling) {
+                // --- 페이지 요청 간 무작위 지연 시간 추가 ---
+                try {
+                    int randomDelay = (int) (Math.random() * 2000) + 1000; // 1초~3초 사이 지연
+                    double delaySeconds = randomDelay / 1000.0;
+                    log.info("페이지 요청 간 무작위 지연 시간 : " + delaySeconds + "ms");
+                    Thread.sleep(randomDelay);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+                // ----------------------------------------------
 
-            try {
-                Document doc = Jsoup.connect(url)
-                        .header("User-Agent", "live.arca.android/1.0.0")
-                        .get();
+                String url = String.format(baseUrl, page);
+                driver.get(url);
 
                 // 공지사항을 제외한 일반 게시글 목록 선택
-                Elements postElements = doc.select("div.vrow.hybrid:not(.notice)");
+                List<WebElement> postElements = driver.findElements(By.cssSelector("div.vrow.hybrid:not(.notice)"));
 
                 log.info("ArcaLive " + page + "페이지 크롤링 결과: " + postElements.size());
 
-                for (Element postElement : postElements) {
+                for (WebElement postElement : postElements) {
                     try {
                         // 제목, 링크, 게시글 번호(sourceId) 추출
-                        Element titleElement = postElement.selectFirst("a.title.hybrid-title");
-                        if (titleElement == null) {
-                            continue;
-                        }
-                        String title = titleElement.text().trim();
-                        String link = titleElement.attr("href");
+                        WebElement titleElement = postElement.findElement(By.cssSelector("a.title.hybrid-title"));
+                        String title = titleElement.getText().trim();
+                        String link = titleElement.getAttribute("href");
 
                         Matcher matcher = articleNoPattern.matcher(link);
                         Long sourceId = null;
@@ -86,22 +88,26 @@ public class ArcaLiveCrawler implements ICrawler {
                         }
 
                         // 작성자 추출
-                        Element authorElement = postElement.selectFirst("span.vcol.col-author span.user-info span[data-filter]");
-                        String author = Optional.ofNullable(authorElement)
-                                .map(Element::text)
-                                .orElse("익명");
+                        String author;
+                        try {
+                            author = postElement.findElement(By.cssSelector("span.vcol.col-author span.user-info span[data-filter]")).getText();
+                        } catch (Exception e) {
+                            author = "익명";
+                        }
 
                         // 댓글 수 추출
-                        Element commentCountElement = postElement.selectFirst("span.comment-count");
-                        int commentCount = Optional.ofNullable(commentCountElement)
-                                .map(Element::text)
-                                .map(s -> s.replaceAll("[^0-9]", ""))
-                                .filter(s -> !s.isEmpty())
-                                .map(Integer::parseInt)
-                                .orElse(0);
+                        int commentCount = 0;
+                        try {
+                            String commentCountStr = postElement.findElement(By.cssSelector("span.comment-count")).getText().replaceAll("[^0-9]", "");
+                            if (!commentCountStr.isEmpty()) {
+                                commentCount = Integer.parseInt(commentCountStr);
+                            }
+                        } catch (Exception e) {
+                            // 댓글이 없으면 0으로 유지
+                        }
 
                         // 조회 수, 추천 수 추출
-                        String viewCountStr = postElement.selectFirst("span.vcol.col-view").text().trim().replaceAll(",", "");
+                        String viewCountStr = postElement.findElement(By.cssSelector("span.vcol.col-view")).getText().trim().replaceAll(",", "");
                         int viewCount = 0;
                         try {
                             viewCount = Integer.parseInt(viewCountStr);
@@ -109,7 +115,7 @@ public class ArcaLiveCrawler implements ICrawler {
                             log.warn("경고: 조회수 파싱 오류: " + viewCountStr);
                         }
 
-                        String recoCountStr = postElement.selectFirst("span.vcol.col-rate").text().trim().replaceAll(",", "");
+                        String recoCountStr = postElement.findElement(By.cssSelector("span.vcol.col-rate")).getText().trim().replaceAll(",", "");
                         int recommendationCount = 0;
                         try {
                             recommendationCount = Integer.parseInt(recoCountStr);
@@ -120,11 +126,11 @@ public class ArcaLiveCrawler implements ICrawler {
                         // 작성 시간 추출 (datetime 속성을 우선적으로 사용)
                         LocalDateTime createdAt;
                         try {
-                            String dateTimeAttr = postElement.selectFirst("time[datetime]").attr("datetime");
+                            String dateTimeAttr = postElement.findElement(By.cssSelector("time[datetime]")).getAttribute("datetime");
                             createdAt = ZonedDateTime.parse(dateTimeAttr).toLocalDateTime();
                         } catch (Exception dateEx) {
                             // datetime 속성이 없거나 파싱 실패 시, 태그의 텍스트를 파싱
-                            String timeStr = postElement.selectFirst("span.vcol.col-time").text().trim();
+                            String timeStr = postElement.findElement(By.cssSelector("span.vcol.col-time")).getText().trim();
                             if (timeStr.contains("시간전")) {
                                 int hoursAgo = Integer.parseInt(timeStr.replaceAll("[^0-9]", ""));
                                 createdAt = LocalDateTime.now().minusHours(hoursAgo);
@@ -160,19 +166,23 @@ public class ArcaLiveCrawler implements ICrawler {
                                 .build();
 
                         posts.add(post);
-                        //                    System.out.println(post.toString());
 
                     } catch (Exception e) {
                         log.warn("개별 게시글 크롤링 중 오류가 발생했습니다: " + e.getMessage());
                         e.printStackTrace();
                     }
                 }
-            } catch (IOException e) {
-                log.warn("크롤링 중 오류가 발생했습니다: " + e.getMessage());
-                e.printStackTrace();
+
+                if (continueCrawling) {
+                    page++;
+                }
             }
-            if (continueCrawling) {
-                page++;
+        } catch (Exception e) {
+            log.warn("크롤링 중 오류가 발생했습니다: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            if (driver != null) {
+                driver.quit();
             }
         }
         return posts;
