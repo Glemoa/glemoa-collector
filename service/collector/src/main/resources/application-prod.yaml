@@ -10,7 +10,7 @@ spring:
     # 데이터 베이스 플랫폼에는 MySQL DB를 사용할 것이기 때문에 이렇게 설정
     database-platform: org.hibernate.dialect.MySQLDialect
     open-in-view: false
-    show-sql: true
+    show-sql: false
     hibernate:
       ddl-auto: create
 
@@ -18,80 +18,80 @@ glemoa:
   batch-size: 100
   crawlers:
     - name: arcaLiveCrawler
-      cron: "0 */3 * * * *" # 5분마다
+      cron: "0 */5 * * * *" # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 1
+      initial-crawl-days: 30
       restart-crawl-minutes: 180
       enabled: true
     - name: bobaedreamCrawler
       cron: "0 */5 * * * *" # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 1
+      initial-crawl-days: 30
       restart-crawl-minutes: 180
-      enabled: false
+      enabled: true
     - name: clienCrawler
       cron: "0 */5 * * * *" # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 1
+      initial-crawl-days: 30
       restart-crawl-minutes: 180
-      enabled: false
+      enabled: true
     - name: dcInsideCrawler
       cron: "0 */5 * * * *"  # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 1
+      initial-crawl-days: 30
       restart-crawl-minutes: 180
-      enabled: false
+      enabled: true
     - name: etolandCrawler
       cron: "0 */5 * * * *"    # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 1
+      initial-crawl-days: 30
       restart-crawl-minutes: 180
-      enabled: false
+      enabled: true
     - name: fmkoreaCrawler
-      cron: "0 */3 * * * *"  # 5분마다
+      cron: "0 */5 * * * *"  # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 1
+      initial-crawl-days: 30
       restart-crawl-minutes: 180
       enabled: true
     - name: humorunivCrawler
       cron: "0 */5 * * * *" # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 1
+      initial-crawl-days: 30
       restart-crawl-minutes: 180
-      enabled: false
+      enabled: true
     - name: invenCrawler
       cron: "0 */5 * * * *" # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 1
+      initial-crawl-days: 30
       restart-crawl-minutes: 180
-      enabled: false
+      enabled: true
     - name: mlbparkCrawler
       cron: "0 */5 * * * *" # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 1
+      initial-crawl-days: 30
       restart-crawl-minutes: 180
-      enabled: false
+      enabled: true
     - name: natePannCrawler
       cron: "0 */5 * * * *" # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 1
+      initial-crawl-days: 30
       restart-crawl-minutes: 180
-      enabled: false
+      enabled: true
     - name: ppomppuCrawler
       cron: "0 */5 * * * *" # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 1
+      initial-crawl-days: 30
       restart-crawl-minutes: 180
-      enabled: false
+      enabled: true
     - name: ruliwebCrawler
       cron: "0 */5 * * * *" # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 1
+      initial-crawl-days: 30
       restart-crawl-minutes: 180
-      enabled: false
+      enabled: true
     - name: theqooCrawler
       cron: "0 */5 * * * *"  # 5분마다
       lookback-minutes: 60
-      initial-crawl-days: 1
+      initial-crawl-days: 30
       restart-crawl-minutes: 180
-      enabled: false
+      enabled: true
