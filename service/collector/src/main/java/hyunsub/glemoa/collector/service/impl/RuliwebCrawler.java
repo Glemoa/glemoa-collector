@@ -63,7 +63,7 @@ public class RuliwebCrawler implements ICrawler {
 
                 // 일반 게시글과 베스트 게시글 모두 포함
                 Elements postElements = doc.select("table.board_list_table tbody tr.table_body");
-                System.out.println(postElements);
+//                System.out.println(postElements);
 
                 Elements end = postElements.select("table.board_list_table tbody tr.table_body");
 
@@ -142,7 +142,7 @@ public class RuliwebCrawler implements ICrawler {
                             createdAt = LocalDate.parse(timeStr, dateFormatter).atStartOfDay();
                         }
 
-                        System.out.println(createdAt);
+//                        System.out.println(createdAt);
 
                         // ✨ 게시글 날짜가 목표 날짜보다 이전이면 중단
                         if (createdAt.isBefore(until)) {
