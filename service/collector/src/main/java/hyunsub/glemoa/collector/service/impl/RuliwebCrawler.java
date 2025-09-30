@@ -24,8 +24,9 @@ import java.util.regex.Pattern;
 @Slf4j
 @Component
 public class RuliwebCrawler implements ICrawler {
-
-    private final String baseUrl = "https://bbs.ruliweb.com/best/humor_only/now?orderby=regdate&custom_list=best_100&page=%d";
+//    https://bbs.ruliweb.com/best/humor_only/now?orderby=regdate&custom_list=best_100&page=1&m=humor_only&t=now
+//    private final String baseUrl = "https://bbs.ruliweb.com/best/humor_only/now?orderby=regdate&custom_list=best_100&page=%d";
+    private final String baseUrl = "https://bbs.ruliweb.com/best/humor_only/now?orderby=regdate&custom_list=best_100&page=%d&m=humor_only&t=now";
     private final Pattern boardAndNoPattern = Pattern.compile("/(best|market)/board/(\\d+)/read/(\\d+)");
 
 //    @Override

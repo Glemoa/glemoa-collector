@@ -1,4 +1,4 @@
-rootProject.name = 'Glemoa'
+rootProject.name = 'glemoa-collector'
 
 include 'common'
 include 'service'

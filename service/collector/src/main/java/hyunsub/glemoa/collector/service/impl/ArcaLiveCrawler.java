@@ -10,10 +10,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -125,10 +122,10 @@ public class ArcaLiveCrawler implements ICrawler {
 
                         // 작성 시간 추출 (datetime 속성을 우선적으로 사용)
                         LocalDateTime createdAt;
-                        try {
-                            String dateTimeAttr = postElement.findElement(By.cssSelector("time[datetime]")).getAttribute("datetime");
-                            createdAt = ZonedDateTime.parse(dateTimeAttr).toLocalDateTime();
-                        } catch (Exception dateEx) {
+//                        try {
+//                            String dateTimeAttr = postElement.findElement(By.cssSelector("time[datetime]")).getAttribute("datetime");
+//                            createdAt = ZonedDateTime.parse(dateTimeAttr).toLocalDateTime();
+//                        } catch (Exception dateEx) {
                             // datetime 속성이 없거나 파싱 실패 시, 태그의 텍스트를 파싱
                             String timeStr = postElement.findElement(By.cssSelector("span.vcol.col-time")).getText().trim();
                             if (timeStr.contains("시간전")) {
@@ -137,15 +134,29 @@ public class ArcaLiveCrawler implements ICrawler {
                             } else if (timeStr.contains("분전")) {
                                 int minutesAgo = Integer.parseInt(timeStr.replaceAll("[^0-9]", ""));
                                 createdAt = LocalDateTime.now().minusMinutes(minutesAgo);
-                            } else if (timeStr.matches("\\d{2}-\\d{2}")) { // MM-dd 형식 처리
-                                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd");
-                                LocalDate localDate = LocalDate.parse(timeStr, formatter);
-                                createdAt = localDate.atTime(LocalTime.now());
-                            } else {
-                                // 다른 형식의 날짜가 나타나면 현재 시간으로 처리
-                                createdAt = LocalDateTime.now();
+                            } else  { // MM-dd 형식 처리
+                                String dateTimeAttr = postElement.findElement(By.cssSelector("time[datetime]")).getAttribute("datetime");
+                                createdAt = ZonedDateTime.parse(dateTimeAttr).toLocalDateTime();
+//                                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd");
+//                                LocalDate localDate = LocalDate.parse(timeStr, formatter);
+//                                createdAt = localDate.atTime(LocalTime.now());
+//                                DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM-dd");
+//                                // Use MonthDay to parse just the month and day
+//                                MonthDay monthDay = MonthDay.parse(timeStr, dateFormatter);
+//                                // Apply the current year
+//                                LocalDate postDate = monthDay.atYear(LocalDate.now().getYear());
+//
+//                                // If the parsed date is in the future, it must be from last year
+//                                if (postDate.isAfter(LocalDate.now())) {
+//                                    postDate = postDate.minusYears(1);
+//                                }
+//                                createdAt = postDate.atStartOfDay();
                             }
-                        }
+//                            else {
+//                                // 다른 형식의 날짜가 나타나면 현재 시간으로 처리
+//                                createdAt = LocalDateTime.now();
+//                            }
+//                        }
 
                         // ✨ 게시글 날짜가 목표 날짜보다 이전이면 중단
                         if (createdAt.isBefore(until) || page > 100) {
@@ -156,7 +167,7 @@ public class ArcaLiveCrawler implements ICrawler {
                         Post post = Post.builder()
                                 .sourceId(sourceId)
                                 .title(title)
-                                .link("https://arca.live" + link)
+                                .link(link)
                                 .author(author)
                                 .commentCount(commentCount)
                                 .viewCount(viewCount)
