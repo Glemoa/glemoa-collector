@@ -59,8 +59,11 @@ public class RuliwebCrawler implements ICrawler {
                         .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
                         .get();
 
+//                log.info(doc.toString());
+
                 // 일반 게시글과 베스트 게시글 모두 포함
                 Elements postElements = doc.select("table.board_list_table tbody tr.table_body");
+                System.out.println(postElements);
 
                 Elements end = postElements.select("table.board_list_table tbody tr.table_body");
 
@@ -74,6 +77,11 @@ public class RuliwebCrawler implements ICrawler {
 //                log.info("Ruliweb 크롤링 결과: " + postElements.size());
 
                 for (Element postElement : postElements) {
+                    // tr 태그에 best_top_row 클래스가 있으면 건너뜀
+                    if (postElement.hasClass("best_top_row")) {
+                        continue;
+                    }
+
                     try {
                         // 게시글 제목, 링크, 게시글 번호(sourceId) 추출
                         Element subjectLinkElement = postElement.selectFirst("a.subject_link");
@@ -116,15 +124,25 @@ public class RuliwebCrawler implements ICrawler {
                         // 날짜/시간 추출
                         String timeStr = postElement.selectFirst("td.time").text().trim();
                         LocalDateTime createdAt;
-                        try {
+
+                        if (timeStr.contains(":")) { // HH:mm format for today/yesterday
+                            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+                            LocalTime postTime = LocalTime.parse(timeStr, timeFormatter);
+                            LocalDateTime postDateTime = LocalDateTime.of(LocalDate.now(), postTime);
+
+                            // If the parsed time is in the future compared to now, it must be from yesterday
+                            if (postDateTime.isAfter(LocalDateTime.now())) {
+                                createdAt = postDateTime.minusDays(1);
+                            } else {
+                                createdAt = postDateTime;
+                            }
+                        } else { // yy.MM.dd format for older posts
                             // 날짜가 포함된 경우를 대비 (ex: 24.12.06)
                             DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yy.MM.dd");
                             createdAt = LocalDate.parse(timeStr, dateFormatter).atStartOfDay();
-                        } catch (DateTimeParseException e) {
-                            // 시간만 포함된 경우 (ex: 15:18)
-                            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
-                            createdAt = LocalDateTime.of(LocalDate.now(), LocalTime.parse(timeStr, timeFormatter));
                         }
+
+                        System.out.println(createdAt);
 
                         // ✨ 게시글 날짜가 목표 날짜보다 이전이면 중단
                         if (createdAt.isBefore(until)) {

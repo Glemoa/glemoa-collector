@@ -84,7 +84,7 @@ glemoa:
       restart-crawl-minutes: 1440
       enabled: false
     - name: ruliwebCrawler
-      cron: "0 */1 * * * *" # 5분마다
+      cron: "0 */5 * * * *" # 5분마다
       lookback-minutes: 60
       initial-crawl-days: 30
       restart-crawl-minutes: 1440
