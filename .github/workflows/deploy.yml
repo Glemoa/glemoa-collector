@@ -94,7 +94,7 @@ jobs:
               -Dspring.datasource.url=jdbc:mysql://${{ secrets.DB_HOST }}:3306/Glemoa \
               -Dspring.datasource.username='${{ secrets.DB_USERNAME }}' \
               -Dspring.datasource.password='${{ secrets.DB_PASSWORD }}' \
-              "$JAR_NAME" > collector.log 2>&1 &
+              "$JAR_NAME" > app.log 2>&1 &
 
             echo "Started $JAR_NAME, waiting for application to start on port $APP_PORT..."
 
