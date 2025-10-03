@@ -75,32 +75,36 @@ jobs:
             APP_PORT=${APP_PORT:-8080}
             echo "Using APP_PORT=$APP_PORT"
 
-            JAR_FILE=$(ls -1t /root/collector*.jar 2>/dev/null | grep -v plain | head -n 1)
-
-            if [ -z "$JAR_FILE" ]; then
-              echo "❌ No collector JAR found in /root. Listing contents:"
+            if [ ! -f "/root/collector.jar" ]; then
+              echo "❌ collector.jar not found in /root. Listing contents:"
               ls -al /root
               exit 1
             fi
 
-            JAR_NAME=$(basename "$JAR_FILE")
+            JAR_NAME="collector.jar"
             echo "✅ Found collector jar: $JAR_NAME"
 
-            pkill -f "$JAR_NAME" || true
-            sleep 20
+            echo "Killing previous process if exists..."
+            pkill -f "collector.jar" || true
+            sleep 5
 
+            echo "Starting new process..."
             nohup java -jar \
               -Dspring.profiles.active=prod \
               -Dspring.datasource.url=jdbc:mysql://${{ secrets.DB_HOST }}:3306/Glemoa \
               -Dspring.datasource.username='${{ secrets.DB_USERNAME }}' \
               -Dspring.datasource.password='${{ secrets.DB_PASSWORD }}' \
-              "$JAR_NAME" > app.log 2>&1 &
+              "$JAR_NAME" > collector.log 2>&1 &
+
+            sleep 5
+            echo "---- Last 20 lines of collector.log ----"
+            tail -n 20 collector.log || true
 
             echo "Started $JAR_NAME, waiting for application to start on port $APP_PORT..."
 
             if ! command -v nc >/dev/null 2>&1; then
               echo "netcat not found, attempting to install..."
-              if command -v apt-get >/dev/null 2_1; then
+              if command -v apt-get >/dev/null 2>&1; then
                 apt-get update && apt-get install -y netcat
               elif command -v yum >/dev/null 2>&1; then
                 yum install -y nc
