@@ -36,6 +36,7 @@ public class FmkoreaCrawler implements ICrawler {
 
     @Override
     public List<Post> crawl(LocalDateTime until) {
+        List<Post> posts = new ArrayList<>();
         // WebDriverManager를 사용하여 ChromeDriver 자동 설정
         WebDriverManager.chromedriver().setup();
 
