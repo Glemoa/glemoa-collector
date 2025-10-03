@@ -62,6 +62,10 @@ public class TheqooCrawler implements ICrawler {
 
                 log.info("Theqoo 크롤링 결과: " + postElements.size());
 
+                if(postElements.isEmpty()) {
+                    break;
+                }
+
                 for (Element postElement : postElements) {
                     try {
                         // postElement의 모든 td 요소를 순서대로 가져옴

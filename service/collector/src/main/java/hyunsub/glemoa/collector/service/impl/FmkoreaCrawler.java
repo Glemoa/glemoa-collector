@@ -48,10 +48,9 @@ public class FmkoreaCrawler implements ICrawler {
         options.addArguments("--remote-allow-origins=*"); // [추가] 최근 Chrome 정책 변경으로 인한 연결 문제 해결
         options.addArguments("user-agent=" + USER_AGENTS.get(RANDOM.nextInt(USER_AGENTS.size())));
 
-        WebDriver driver = new ChromeDriver(options);
-        List<Post> posts = new ArrayList<>();
-
+        WebDriver driver = null;
         try {
+            driver = new ChromeDriver(options);
             int page = 1;
             boolean continueCrawling = true;
 

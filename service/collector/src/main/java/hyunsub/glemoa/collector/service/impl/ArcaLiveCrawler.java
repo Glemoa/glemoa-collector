@@ -45,9 +45,9 @@ public class ArcaLiveCrawler implements ICrawler {
         options.addArguments("--remote-allow-origins=*");
         options.addArguments("user-agent=live.arca.android/1.0.0");
 
-        WebDriver driver = new ChromeDriver(options);
-
+        WebDriver driver = null;
         try {
+            driver = new ChromeDriver(options);
             while (continueCrawling) {
                 // --- 페이지 요청 간 무작위 지연 시간 추가 ---
                 try {

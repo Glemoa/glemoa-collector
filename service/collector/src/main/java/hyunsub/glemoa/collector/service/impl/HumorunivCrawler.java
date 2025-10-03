@@ -59,6 +59,10 @@ public class HumorunivCrawler implements ICrawler {
 
                 log.info("Humoruniv 크롤링 결과: " + postElements.size());
 
+                if(postElements.isEmpty()) {
+                    break;
+                }
+
                 for (Element postElement : postElements) {
                     try {
                         // 게시글 고유 번호 (sourceId) 추출
