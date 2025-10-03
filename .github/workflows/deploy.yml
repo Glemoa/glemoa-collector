@@ -94,7 +94,6 @@ jobs:
             # 새로운 collector 애플리케이션 실행
             nohup java -jar \
               -Dspring.profiles.active=prod \
-              -DEUREKA_SERVER_URL=${{ secrets.EUREKA_SERVER_URL }} \
               -DDB_HOST=${{ secrets.DB_HOST }} \
               -DDB_USERNAME='${{ secrets.DB_USERNAME }}' \
               -DDB_PASSWORD='${{ secrets.DB_PASSWORD }}' \
