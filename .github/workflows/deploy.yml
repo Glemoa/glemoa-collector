@@ -87,7 +87,7 @@ jobs:
             echo "✅ Found collector jar: $JAR_NAME"
 
             pkill -f "$JAR_NAME" || true
-            sleep 5
+            sleep 20
 
             nohup java -jar \
               -Dspring.profiles.active=prod \
