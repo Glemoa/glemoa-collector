@@ -92,8 +92,9 @@ jobs:
             nohup java -jar \
               -Dspring.profiles.active=prod \
               -DDB_HOST=${{ secrets.DB_HOST }} \
-              -DDB_USERNAME='${{ secrets.DB_USERNAME }}' \
-              -DDB_PASSWORD='${{ secrets.DB_PASSWORD }}' \
+              -Dspring.datasource.url=jdbc:mysql://${{ secrets.DB_HOST }}:3306/Glemoa \
+              -Dspring.datasource.username='${{ secrets.DB_USERNAME }}' \
+              -Dspring.datasource.password='${{ secrets.DB_PASSWORD }}' \
               "$JAR_NAME" > collector.log 2>&1 &
 
             echo "Started $JAR_NAME, waiting for application to start on port $APP_PORT..."
