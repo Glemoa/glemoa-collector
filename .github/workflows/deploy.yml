@@ -89,12 +89,16 @@ jobs:
             pkill -f "$JAR_NAME" || true
             sleep 5
 
-            nohup java -jar \
-              -Dspring.profiles.active=prod \
-              -Dspring.datasource.url=jdbc:mysql://${{ secrets.DB_HOST }}:3306/Glemoa \
-              -Dspring.datasource.username='${{ secrets.DB_USERNAME }}' \
-              -Dspring.datasource.password='${{ secrets.DB_PASSWORD }}' \
-              "$JAR_NAME" > collector.log 2>&1 & disown
+            setsid java -jar \
+            -Dspring.profiles.active=prod \
+            -Dspring.datasource.url=jdbc:mysql://${{ secrets.DB_HOST }}:3306/Glemoa \
+            -Dspring.datasource.username='${{ secrets.DB_USERNAME }}' \
+            -Dspring.datasource.password='${{ secrets.DB_PASSWORD }}' \
+            "$JAR_NAME" > collector.log 2>&1 < /dev/null &
+            
+            sleep 5
+            echo "---- Last 20 lines of collector.log ----"
+            tail -n 20 collector.log || true
 
             echo "Started $JAR_NAME, waiting for application to start on port $APP_PORT..."
 
