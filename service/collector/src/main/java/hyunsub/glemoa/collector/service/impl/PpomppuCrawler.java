@@ -148,6 +148,7 @@ public class PpomppuCrawler implements ICrawler {
             } catch (IOException e) {
                 log.error("크롤링 중 오류가 발생했습니다: " + e.getMessage());
                 e.printStackTrace();
+                break;
             }
             if (continueCrawling) {
                 page++;

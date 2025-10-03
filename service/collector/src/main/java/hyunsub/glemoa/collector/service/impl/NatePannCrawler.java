@@ -256,6 +256,7 @@ private final String todayUrl = "https://pann.nate.com/talk/ranking?rankingType=
             } catch (IOException e) {
                 log.error("크롤링 중 오류가 발생했습니다: " + e.getMessage());
                 e.printStackTrace();
+                break;
             }
         }
         return posts;
