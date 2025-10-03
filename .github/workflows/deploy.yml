@@ -75,7 +75,6 @@ jobs:
             APP_PORT=8080 # Collector 포트 (기본값 8080)
             echo "Using APP_PORT=$APP_PORT"
 
-            # collector*.jar 패턴으로 최신 JAR 파일 찾기
             JAR_FILE=$(ls -1t /root/collector*.jar 2>/dev/null | grep -v plain | head -n 1)
 
             if [ -z "$JAR_FILE" ]; then
@@ -87,11 +86,9 @@ jobs:
             JAR_NAME=$(basename "$JAR_FILE")
             echo "✅ Found collector jar: $JAR_NAME"
 
-            # 기존 collector 프로세스 종료
             pkill -f "$JAR_NAME" || true
             sleep 5
 
-            # 새로운 collector 애플리케이션 실행
             nohup java -jar \
               -Dspring.profiles.active=prod \
               -DDB_HOST=${{ secrets.DB_HOST }} \
@@ -101,7 +98,6 @@ jobs:
 
             echo "Started $JAR_NAME, waiting for application to start on port $APP_PORT..."
 
-            # netcat이 설치되어 있는지 확인하고 없으면 설치
             if ! command -v nc >/dev/null 2>&1; then
               echo "netcat not found, attempting to install..."
               if command -v apt-get >/dev/null 2_1; then
@@ -111,7 +107,6 @@ jobs:
               fi
             fi
 
-            # 애플리케이션이 시작될 때까지 대기 (최대 5분)
             timeout=300
             while ! nc -z localhost $APP_PORT && [ $timeout -gt 0 ]; do
               echo "Application not yet available. Waiting..."
