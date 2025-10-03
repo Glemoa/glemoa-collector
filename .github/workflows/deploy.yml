@@ -91,7 +91,6 @@ jobs:
 
             nohup java -jar \
               -Dspring.profiles.active=prod \
-              -DDB_HOST=${{ secrets.DB_HOST }} \
               -Dspring.datasource.url=jdbc:mysql://${{ secrets.DB_HOST }}:3306/Glemoa \
               -Dspring.datasource.username='${{ secrets.DB_USERNAME }}' \
               -Dspring.datasource.password='${{ secrets.DB_PASSWORD }}' \
