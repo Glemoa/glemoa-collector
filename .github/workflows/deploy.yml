@@ -72,7 +72,7 @@ jobs:
           script: |
             cd /root
 
-            APP_PORT=8080 # Collector 포트 (기본값 8080)
+            APP_PORT=${APP_PORT:-8080}
             echo "Using APP_PORT=$APP_PORT"
 
             JAR_FILE=$(ls -1t /root/collector*.jar 2>/dev/null | grep -v plain | head -n 1)
@@ -89,12 +89,12 @@ jobs:
             pkill -f "$JAR_NAME" || true
             sleep 5
 
-            setsid java -jar \
-            -Dspring.profiles.active=prod \
-            -Dspring.datasource.url=jdbc:mysql://${{ secrets.DB_HOST }}:3306/Glemoa \
-            -Dspring.datasource.username='${{ secrets.DB_USERNAME }}' \
-            -Dspring.datasource.password='${{ secrets.DB_PASSWORD }}' \
-            "$JAR_NAME" > collector.log 2>&1 < /dev/null &
+            nohup java -jar \
+              -Dspring.profiles.active=prod \
+              -Dspring.datasource.url=jdbc:mysql://${{ secrets.DB_HOST }}:3306/Glemoa \
+              -Dspring.datasource.username='${{ secrets.DB_USERNAME }}' \
+              -Dspring.datasource.password='${{ secrets.DB_PASSWORD }}' \
+              "$JAR_NAME" > collector.log 2>&1 < /dev/null &
             
             sleep 5
             echo "---- Last 20 lines of collector.log ----"
