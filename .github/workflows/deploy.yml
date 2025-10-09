@@ -51,7 +51,7 @@ jobs:
         with:
           name: collector-app-jar
 
-      # 2. JAR 파일을 서버로 전송 (SCP)
+      # 2. JAR 파일을 서버로 전송 (SCP  )
       - name: Transfer JAR to server
         uses: appleboy/scp-action@master
         with:
