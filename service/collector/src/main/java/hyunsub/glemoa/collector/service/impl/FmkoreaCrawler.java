@@ -38,7 +38,10 @@ public class FmkoreaCrawler implements ICrawler {
     public List<Post> crawl(LocalDateTime until) {
         List<Post> posts = new ArrayList<>();
         // WebDriverManager를 사용하여 ChromeDriver 자동 설정
-        WebDriverManager.chromedriver().setup();
+//        WebDriverManager.chromedriver().setup();
+
+        // 🚨 삽입 위치: 여기에 ChromeDriver 버전 명시 코드를 추가합니다.
+        WebDriverManager.chromedriver().browserVersion("104.0.5112.101").setup();
 
         // Chrome 옵션 설정
         ChromeOptions options = new ChromeOptions();
@@ -51,6 +54,7 @@ public class FmkoreaCrawler implements ICrawler {
 
         WebDriver driver = null;
         try {
+
             driver = new ChromeDriver(options);
             int page = 1;
             boolean continueCrawling = true;

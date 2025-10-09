@@ -2,6 +2,7 @@ package hyunsub.glemoa.collector.service.impl;
 
 import hyunsub.glemoa.collector.entity.Post;
 import hyunsub.glemoa.collector.service.ICrawler;
+import io.github.bonigarcia.wdm.WebDriverManager;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -34,6 +35,9 @@ public class ArcaLiveCrawler implements ICrawler {
     @Override
     public List<Post> crawl(LocalDateTime until) {
         List<Post> posts = new ArrayList<>();
+        // 🚨 삽입 위치: 여기에 ChromeDriver 버전 명시 코드를 추가합니다.
+        WebDriverManager.chromedriver().browserVersion("104.0.5112.101").setup();
+
         int page = 1;
         boolean continueCrawling = true;
 
@@ -47,6 +51,7 @@ public class ArcaLiveCrawler implements ICrawler {
 
         WebDriver driver = null;
         try {
+
             driver = new ChromeDriver(options);
             while (continueCrawling) {
                 // --- 페이지 요청 간 무작위 지연 시간 추가 ---
