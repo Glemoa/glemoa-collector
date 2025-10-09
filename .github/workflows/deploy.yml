@@ -59,7 +59,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "*.jar"
-          target: "/root/" # 서버의 배포 디렉토리
+          target: "/home/ubuntu" # 서버의 배포 디렉토리
 
 #      # 3. 서버에서 배포 스크립트 실행 (SSH) / 원격 서버 8080 포트 방화벽 열어줌
 #      - name: Execute deployment script on server
