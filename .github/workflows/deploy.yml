@@ -74,18 +74,19 @@ jobs:
 
             APP_PORT=${APP_PORT:-8080}
             echo "Using APP_PORT=$APP_PORT"
+            
+            JAR_NAME=$(ls -1 *.jar 2>/dev/null | head -n 1) 
 
-            if [ ! -f "/root/collector.jar" ]; then
-              echo "❌ collector.jar not found in /home/ubuntu. Listing contents:"
-              ls -al /root
+            if [ -z "$JAR_NAME" ] || [ ! -f "$JAR_NAME" ]; then
+              echo "❌ JAR file not found in /home/ubuntu. Listing contents:"
+              ls -al
               exit 1
             fi
 
-            JAR_NAME="collector.jar"
-            echo "✅ Found collector jar: $JAR_NAME"
+            echo "✅ Found jar file: $JAR_NAME"
 
             echo "Killing previous process if exists..."
-            pkill -f "collector.jar" || true
+            pkill -f "$JAR_NAME" || true
             sleep 5
 
             echo "Starting new process..."
