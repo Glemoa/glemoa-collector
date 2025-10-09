@@ -15,7 +15,7 @@ dependencies {
     // Jsoup 라이브러리
     implementation 'org.jsoup:jsoup:1.14.3'
     // Selenium 라이브러리
-    implementation 'org.seleniumhq.selenium:selenium-java:4.21.0'
+    implementation 'org.seleniumhq.selenium:selenium-java:4.22.0'
     // WebDriver 자동 관리를 위한 라이브러리
     implementation 'io.github.bonigarcia:webdrivermanager:5.8.0'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
