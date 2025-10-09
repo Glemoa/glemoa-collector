@@ -61,68 +61,68 @@ jobs:
           source: "*.jar"
           target: "/home/ubuntu" # 서버의 배포 디렉토리
 
-#      # 3. 서버에서 배포 스크립트 실행 (SSH) / 원격 서버 8080 포트 방화벽 열어줌
-#      - name: Execute deployment script on server
-#        uses: appleboy/ssh-action@master
-#        with:
-#          host: ${{ secrets.SERVER_HOST }}
-#          username: ${{ secrets.SERVER_USER }}
-#          key: ${{ secrets.SSH_PRIVATE_KEY }}
-#          command_timeout: 10m
-#          script: |
-#            cd /root
-#
-#            APP_PORT=${APP_PORT:-8080}
-#            echo "Using APP_PORT=$APP_PORT"
-#
-#            if [ ! -f "/root/collector.jar" ]; then
-#              echo "❌ collector.jar not found in /root. Listing contents:"
-#              ls -al /root
-#              exit 1
-#            fi
-#
-#            JAR_NAME="collector.jar"
-#            echo "✅ Found collector jar: $JAR_NAME"
-#
-#            echo "Killing previous process if exists..."
-#            pkill -f "collector.jar" || true
-#            sleep 5
-#
-#            echo "Starting new process..."
-#            nohup java -jar \
-#              -Dspring.profiles.active=prod \
-#              -Dspring.datasource.url=jdbc:mysql://${{ secrets.DB_HOST }}:3306/Glemoa \
-#              -Dspring.datasource.username='${{ secrets.DB_USERNAME }}' \
-#              -Dspring.datasource.password='${{ secrets.DB_PASSWORD }}' \
-#              "$JAR_NAME" > collector.log 2>&1 < /dev/null &
-#
-#            sleep 5
-#            echo "---- Last 20 lines of collector.log ----"
-#            tail -n 20 collector.log || true
-#
-#            echo "Started $JAR_NAME, waiting for application to start on port $APP_PORT..."
-#
-#            if ! command -v nc >/dev/null 2>&1; then
-#              echo "netcat not found, attempting to install..."
-#              if command -v apt-get >/dev/null 2>&1; then
-#                apt-get update && apt-get install -y netcat
-#              elif command -v yum >/dev/null 2>&1; then
-#                yum install -y nc
-#              fi
-#            fi
-#
-#            timeout=300
-#            while ! nc -z localhost $APP_PORT && [ $timeout -gt 0 ]; do
-#              echo "Application not yet available. Waiting..."
-#              sleep 5
-#              timeout=$((timeout-5))
-#            done
-#
-#            if [ $timeout -le 0 ]; then
-#              echo "❌ Error: Application failed to start within the timeout period."
-#              echo "---- Last 200 lines of collector.log ----"
-#              tail -n 200 collector.log || true
-#              exit 1
-#            fi
-#
-#            echo "✅ Application is up and running on port $APP_PORT!"
+      # 3. 서버에서 배포 스크립트 실행 (SSH) / 원격 서버 8080 포트 방화벽 열어줌
+      - name: Execute deployment script on server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          command_timeout: 10m
+          script: |
+            cd /home/ubuntu
+
+            APP_PORT=${APP_PORT:-8080}
+            echo "Using APP_PORT=$APP_PORT"
+
+            if [ ! -f "/root/collector.jar" ]; then
+              echo "❌ collector.jar not found in /home/ubuntu. Listing contents:"
+              ls -al /root
+              exit 1
+            fi
+
+            JAR_NAME="collector.jar"
+            echo "✅ Found collector jar: $JAR_NAME"
+
+            echo "Killing previous process if exists..."
+            pkill -f "collector.jar" || true
+            sleep 5
+
+            echo "Starting new process..."
+            nohup java -jar \
+              -Dspring.profiles.active=prod \
+              -Dspring.datasource.url=jdbc:mysql://${{ secrets.DB_HOST }}:3306/Glemoa \
+              -Dspring.datasource.username='${{ secrets.DB_USERNAME }}' \
+              -Dspring.datasource.password='${{ secrets.DB_PASSWORD }}' \
+              "$JAR_NAME" > collector.log 2>&1 < /dev/null &
+
+            sleep 5
+            echo "---- Last 20 lines of collector.log ----"
+            tail -n 20 collector.log || true
+
+            echo "Started $JAR_NAME, waiting for application to start on port $APP_PORT..."
+
+            if ! command -v nc >/dev/null 2>&1; then
+              echo "netcat not found, attempting to install..."
+              if command -v apt-get >/dev/null 2>&1; then
+                apt-get update && apt-get install -y netcat
+              elif command -v yum >/dev/null 2>&1; then
+                yum install -y nc
+              fi
+            fi
+
+            timeout=300
+            while ! nc -z localhost $APP_PORT && [ $timeout -gt 0 ]; do
+              echo "Application not yet available. Waiting..."
+              sleep 5
+              timeout=$((timeout-5))
+            done
+
+            if [ $timeout -le 0 ]; then
+              echo "❌ Error: Application failed to start within the timeout period."
+              echo "---- Last 200 lines of collector.log ----"
+              tail -n 200 collector.log || true
+              exit 1
+            fi
+
+            echo "✅ Application is up and running on port $APP_PORT!"
