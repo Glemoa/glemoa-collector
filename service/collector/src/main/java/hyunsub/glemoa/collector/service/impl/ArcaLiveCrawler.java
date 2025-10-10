@@ -36,10 +36,13 @@ public class ArcaLiveCrawler implements ICrawler {
     public List<Post> crawl(LocalDateTime until) {
         List<Post> posts = new ArrayList<>();
         // 🚨 삽입 위치: 여기에 ChromeDriver 버전 명시 코드를 추가합니다.
-        WebDriverManager.chromedriver().browserVersion("104.0.5112.101").setup();
+//        WebDriverManager.chromedriver().browserVersion("104.0.5112.101").setup();
 
         int page = 1;
         boolean continueCrawling = true;
+
+        // WebDriverManager를 사용하지 않음
+        System.setProperty("webdriver.chrome.driver", "/usr/local/bin/chromedriver");
 
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless");
@@ -49,10 +52,10 @@ public class ArcaLiveCrawler implements ICrawler {
         options.addArguments("--remote-allow-origins=*");
         options.addArguments("user-agent=live.arca.android/1.0.0");
 
-        WebDriver driver = null;
+        WebDriver driver = new ChromeDriver(options);
+
         try {
 
-            driver = new ChromeDriver(options);
             while (continueCrawling) {
                 // --- 페이지 요청 간 무작위 지연 시간 추가 ---
                 try {

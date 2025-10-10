@@ -41,7 +41,10 @@ public class FmkoreaCrawler implements ICrawler {
 //        WebDriverManager.chromedriver().setup();
 
         // 🚨 삽입 위치: 여기에 ChromeDriver 버전 명시 코드를 추가합니다.
-        WebDriverManager.chromedriver().browserVersion("104.0.5112.101").setup();
+//        WebDriverManager.chromedriver().browserVersion("104.0.5112.101").setup();
+
+        // WebDriverManager를 사용하지 않음
+        System.setProperty("webdriver.chrome.driver", "/usr/local/bin/chromedriver");
 
         // Chrome 옵션 설정
         ChromeOptions options = new ChromeOptions();
@@ -52,10 +55,10 @@ public class FmkoreaCrawler implements ICrawler {
         options.addArguments("--remote-allow-origins=*"); // [추가] 최근 Chrome 정책 변경으로 인한 연결 문제 해결
         options.addArguments("user-agent=" + USER_AGENTS.get(RANDOM.nextInt(USER_AGENTS.size())));
 
-        WebDriver driver = null;
+        WebDriver driver = new ChromeDriver(options);
+
         try {
 
-            driver = new ChromeDriver(options);
             int page = 1;
             boolean continueCrawling = true;
 
