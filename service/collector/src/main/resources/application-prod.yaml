@@ -95,3 +95,8 @@ glemoa:
       initial-crawl-days: 60
       restart-crawl-minutes: 1440
       enabled: true
+
+logging:
+  level:
+    # 기본 레벨을 INFO로 유지 (기타 라이브러리)
+    root: INFO
