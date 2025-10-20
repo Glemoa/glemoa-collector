@@ -24,31 +24,31 @@ glemoa:
       restart-crawl-minutes: 1440
       enabled: false
     - name: bobaedreamCrawler
-      cron: "0 */5 * * * *" # 5분마다
+      cron: "0 */1 * * * *" # 5분마다
       lookback-minutes: 60
       initial-crawl-days: 30
       restart-crawl-minutes: 1440
       enabled: false
     - name: clienCrawler
-      cron: "0 */5 * * * *" # 5분마다
+      cron: "0 */1 * * * *" # 5분마다
       lookback-minutes: 60
       initial-crawl-days: 30
       restart-crawl-minutes: 1440
       enabled: false
     - name: dcInsideCrawler
-      cron: "0 */5 * * * *"  # 5분마다
+      cron: "0 */1 * * * *"  # 5분마다
       lookback-minutes: 60
       initial-crawl-days: 30
       restart-crawl-minutes: 1440
       enabled: false
     - name: etolandCrawler
-      cron: "0 */5 * * * *"    # 5분마다
+      cron: "0 */1 * * * *"    # 5분마다
       lookback-minutes: 60
       initial-crawl-days: 30
       restart-crawl-minutes: 1440
       enabled: false
     - name: fmkoreaCrawler
-      cron: "0 */5 * * * *"  # 5분마다
+      cron: "0 */1 * * * *"  # 5분마다
       lookback-minutes: 60
       initial-crawl-days: 30
       restart-crawl-minutes: 1440
@@ -60,38 +60,43 @@ glemoa:
       restart-crawl-minutes: 1440
       enabled: true
     - name: invenCrawler
-      cron: "0 */5 * * * *" # 5분마다
+      cron: "0 */1 * * * *" # 5분마다
       lookback-minutes: 60
       initial-crawl-days: 30
       restart-crawl-minutes: 1440
       enabled: false
     - name: mlbparkCrawler
-      cron: "0 */5 * * * *" # 5분마다
+      cron: "0 */1 * * * *" # 5분마다
       lookback-minutes: 60
       initial-crawl-days: 30
       restart-crawl-minutes: 1440
       enabled: false
     - name: natePannCrawler
-      cron: "0 */5 * * * *" # 5분마다
+      cron: "0 */1 * * * *" # 5분마다
       lookback-minutes: 60
       initial-crawl-days: 30
       restart-crawl-minutes: 1440
       enabled: false
     - name: ppomppuCrawler
-      cron: "0 */5 * * * *" # 5분마다
+      cron: "0 */1 * * * *" # 5분마다
       lookback-minutes: 60
       initial-crawl-days: 30
       restart-crawl-minutes: 1440
       enabled: false
     - name: ruliwebCrawler
-      cron: "0 */5 * * * *" # 5분마다
+      cron: "0 */1 * * * *" # 5분마다
       lookback-minutes: 60
       initial-crawl-days: 30
       restart-crawl-minutes: 1440
       enabled: false
     - name: theqooCrawler
-      cron: "0 */5 * * * *"  # 5분마다
+      cron: "0 */1 * * * *"  # 5분마다
       lookback-minutes: 60
       initial-crawl-days: 30
       restart-crawl-minutes: 1440
       enabled: false
+
+logging:
+  level:
+    # 기본 레벨을 INFO로 유지 (기타 라이브러리)
+    root: INFO
