@@ -34,12 +34,18 @@ public class ClienCrawler implements ICrawler {
         int page = 0;
         boolean continueCrawling = true;
 
+        String[] userAgents = {
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.5993.90 Safari/537.36",
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_2_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.3 Safari/605.1.15",
+                "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        };
+
 //      for (int page = 1; page <= pageCount; page++) {
         while (continueCrawling) {
 
             // --- 페이지 요청 간 무작위 지연 시간 추가 ---
             try {
-                int randomDelay = (int) (Math.random() * 2000) + 1000; // 1초~3초 사이 지연
+                int randomDelay = (int) (Math.random() * 10000) + 1000; // 지연 로직
                 double delaySeconds = randomDelay / 1000.0;
                 log.info("페이지 요청 간 무작위 지연 시간 : " + delaySeconds + "ms");
                 Thread.sleep(randomDelay);
@@ -50,8 +56,12 @@ public class ClienCrawler implements ICrawler {
 
             String url = String.format(baseUrl, page);
             try {
+                String userAgent = userAgents[(int)(Math.random() * userAgents.length)];
                 Document doc = Jsoup.connect(url)
-                        .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
+                        .header("User-Agent", userAgent)
+                        .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+                        .header("Accept-Language", "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7")
+                        .timeout(10000) // 10초
                         .get();
 
                 Elements postElements = doc.select("div.list_item.symph_row[data-role=list-row]");
