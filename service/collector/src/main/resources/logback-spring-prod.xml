@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true" scanPeriod="60 seconds">
 
-    <property name="LOG_FILE_PATH" value="/var/log/collector"/>
+    <property name="LOG_FILE_PATH" value="/home/ubuntu/archive"/>
     <property name="LOG_FILE_NAME" value="collector.log"/>
 
     <appender name="FILEBEAT_JSON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
