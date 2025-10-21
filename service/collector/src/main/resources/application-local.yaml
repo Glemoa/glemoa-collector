@@ -24,7 +24,7 @@ glemoa:
       restart-crawl-minutes: 1440
       enabled: false
     - name: bobaedreamCrawler
-      cron: "0 */1 * * * *" # 5분마다
+      cron: "0 */5 * * * *" # 5분마다
       lookback-minutes: 60
       initial-crawl-days: 30
       restart-crawl-minutes: 1440
@@ -34,7 +34,7 @@ glemoa:
       lookback-minutes: 60
       initial-crawl-days: 30
       restart-crawl-minutes: 1440
-      enabled: false
+      enabled: true
     - name: dcInsideCrawler
       cron: "0 */1 * * * *"  # 5분마다
       lookback-minutes: 60
@@ -58,7 +58,7 @@ glemoa:
       lookback-minutes: 60
       initial-crawl-days: 30
       restart-crawl-minutes: 1440
-      enabled: true
+      enabled: false
     - name: invenCrawler
       cron: "0 */1 * * * *" # 5분마다
       lookback-minutes: 60
