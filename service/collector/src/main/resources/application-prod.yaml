@@ -3,6 +3,9 @@ spring:
     elasticsearch:
       client:
         nodes: ${ELASTICSEARCH_HOST}:9200 # Elasticsearch 서버 주소 (환경에 맞게 변경)
+        # ⭐⭐⭐ 이 설정을 추가합니다. (SSL/TLS 비활성화) ⭐⭐⭐
+        restclient:
+          use-ssl: false
   datasource:
     # MySQL 드라이버 지정
     driver-class-name: com.mysql.cj.jdbc.Driver
