@@ -95,7 +95,7 @@ jobs:
               -Dspring.datasource.url=jdbc:mysql://${{ secrets.DB_HOST }}:3306/Glemoa \
               -Dspring.datasource.username='${{ secrets.DB_USERNAME }}' \
               -Dspring.datasource.password='${{ secrets.DB_PASSWORD }}' \
-              -Delasticsearch.host='${{ secrets.ELASTICSEARCH_HOST }}' \
+              -Dspring.data.elasticsearch.client.nodes='${{ secrets.ELASTICSEARCH_HOST }}:9200' \
               "$JAR_NAME" > collector.log 2>&1 < /dev/null &
 
             sleep 5
