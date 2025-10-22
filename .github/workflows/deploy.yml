@@ -97,6 +97,8 @@ jobs:
               -Dspring.datasource.password='${{ secrets.DB_PASSWORD }}' \
               -Dspring.data.elasticsearch.client.nodes='${{ secrets.ELASTICSEARCH_HOST }}:9200' \
               -Dspring.data.elasticsearch.client.restclient.use-ssl=false \
+              -Dspring.data.elasticsearch.client.restclient.verify-certs=false \
+              -Dserver.ssl.enabled=false \
               "$JAR_NAME" > collector.log 2>&1 < /dev/null &
 
             sleep 5
