@@ -1,6 +1,7 @@
 package hyunsub.glemoa.collector.common;
 
 import hyunsub.glemoa.collector.config.CrawlerProperties;
+import hyunsub.glemoa.collector.repository.PostDocumentRepository;
 import hyunsub.glemoa.collector.repository.PostRepository;
 import hyunsub.glemoa.collector.service.ICrawler;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class DynamicCrawlerScheduler implements InitializingBean {
     private final TaskScheduler taskScheduler;
     private final CrawlerProperties crawlerProperties;
     private final PostRepository postRepository;
+    private final PostDocumentRepository postDocumentRepository; // 추가: Elasticsearch Repository
     private final Map<String, ICrawler> crawlers;
 
     // [수정] 단일 공용 락 -> 크롤러별 개별 락을 보관하는 Map으로 변경
@@ -45,7 +47,7 @@ public class DynamicCrawlerScheduler implements InitializingBean {
 
                     taskScheduler.schedule(
                         // [수정] 개별 락(individualLock)을 CrawlerJob에 전달
-                        new CrawlerJob(crawler, postRepository, config.getInitialCrawlDays(), batchSize,
+                        new CrawlerJob(crawler, postRepository, postDocumentRepository, config.getInitialCrawlDays(), batchSize,
                                 config.getLookbackMinutes(), config.getRestartCrawlMinutes(), individualLock),
                         new CronTrigger(config.getCron())
                     );

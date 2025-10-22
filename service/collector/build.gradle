@@ -22,6 +22,8 @@ dependencies {
     runtimeOnly 'com.mysql:mysql-connector-j'
     // 로그 백 라이브러리
     implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
+    // 엘라스틱 서치 라이브러리
+    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
 }
 
 bootJar {

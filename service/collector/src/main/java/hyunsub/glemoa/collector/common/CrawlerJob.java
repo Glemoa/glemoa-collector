@@ -1,10 +1,13 @@
 package hyunsub.glemoa.collector.common;
 
+import hyunsub.glemoa.collector.document.PostDocument;
 import hyunsub.glemoa.collector.entity.Post;
+import hyunsub.glemoa.collector.repository.PostDocumentRepository;
 import hyunsub.glemoa.collector.repository.PostRepository;
 import hyunsub.glemoa.collector.service.ICrawler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -20,6 +23,7 @@ public class CrawlerJob implements Runnable {
 
     private final ICrawler crawler;
     private final PostRepository postRepository;
+    private final PostDocumentRepository postDocumentRepository; // 추가: Elasticsearch Repository
     private final int initialCrawlDays;
     private final int batchSize;
     private final int lookBackMinutes;
@@ -28,6 +32,7 @@ public class CrawlerJob implements Runnable {
 
 
     @Override
+    @Transactional // 트랜잭션 관리 (MySQL 저장과 Elasticsearch 저장을 하나의 논리적 단위로 묶을 수 있음)
     public void run() {
         String source = crawler.getClass().getSimpleName().replace("Crawler", "").toLowerCase();
 
@@ -81,6 +86,7 @@ public class CrawlerJob implements Runnable {
                 Map<String, Post> existingPostsMap = existingPosts.stream().collect(Collectors.toMap(Post::getLink, post -> post, (existingValue, newValue) -> existingValue));
 
                 List<Post> postsToSave = new ArrayList<>();
+                List<PostDocument> postDocumentsToSave = new ArrayList<>(); // Elasticsearch에 저장할 문서 리스트
                 int updateCount = 0;
 
                 // 3. 크롤링된 데이터를 순회하며 '추가'할 것과 '업데이트'할 것을 분류
@@ -105,11 +111,13 @@ public class CrawlerJob implements Runnable {
 
                         if(isUpdated) {
                             postsToSave.add(existingPost);
+                            postDocumentsToSave.add(PostDocument.from(existingPost)); // Elasticsearch 업데이트 대상
                             updateCount++;
                         }
                     } else {
                         // 3-2. 데이터가 없으면 (INSERT)
                         postsToSave.add(crawledPost);
+                        postDocumentsToSave.add(PostDocument.from(crawledPost)); // Elasticsearch 추가 대상
                     }
                 }
 
@@ -120,11 +128,18 @@ public class CrawlerJob implements Runnable {
 
                 log.info("[{}] 크롤링 완료. 총 {}개의 게시글 중 {}개는 신규, {}개는 업데이트 대상입니다.", source, crawledPosts.size(), postsToSave.size() - updateCount, updateCount);
 
-                // 4. 배치 저장
+                // 4. MySQL 배치 저장
                 for (int i = 0; i < postsToSave.size(); i += batchSize) {
                     List<Post> batchList = postsToSave.subList(i, Math.min(i + batchSize, postsToSave.size()));
                     postRepository.saveAll(batchList);
-                    log.debug("[{}] {}/{} 게시글 저장 중...", source, Math.min(i + batchSize, postsToSave.size()), postsToSave.size());
+                    log.info("[{}] {}/{} 게시글 MySQL 저장 중...", source, Math.min(i + batchSize, postsToSave.size()), postsToSave.size());
+                }
+
+                // 5. Elasticsearch 배치 저장 (추가된 부분)
+                for (int i = 0; i < postDocumentsToSave.size(); i += batchSize) {
+                    List<PostDocument> batchList = postDocumentsToSave.subList(i, Math.min(i + batchSize, postDocumentsToSave.size()));
+                    postDocumentRepository.saveAll(batchList);
+                    log.info("[{}] {}/{} 게시글 Elasticsearch 저장 중...", source, Math.min(i + batchSize, postDocumentsToSave.size()), postDocumentsToSave.size());
                 }
 
                 log.info("[{}] {}개의 신규 게시글 저장 / {}개의 게시글 업데이트 완료.", source, postsToSave.size() - updateCount, updateCount);
