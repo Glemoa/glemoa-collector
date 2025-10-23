@@ -86,7 +86,7 @@ public class CrawlerJob implements Runnable {
                 Map<String, Post> existingPostsMap = existingPosts.stream().collect(Collectors.toMap(Post::getLink, post -> post, (existingValue, newValue) -> existingValue));
 
                 List<Post> postsToSave = new ArrayList<>();
-                List<PostDocument> postDocumentsToSave = new ArrayList<>(); // Elasticsearch에 저장할 문서 리스트
+//                List<PostDocument> postDocumentsToSave = new ArrayList<>(); // Elasticsearch에 저장할 문서 리스트
                 int updateCount = 0;
 
                 // 3. 크롤링된 데이터를 순회하며 '추가'할 것과 '업데이트'할 것을 분류
@@ -111,13 +111,15 @@ public class CrawlerJob implements Runnable {
 
                         if(isUpdated) {
                             postsToSave.add(existingPost);
-                            postDocumentsToSave.add(PostDocument.from(existingPost)); // Elasticsearch 업데이트 대상
+//                            postDocumentsToSave.add(PostDocument.from(existingPost)); // Elasticsearch 업데이트 대상
                             updateCount++;
                         }
                     } else {
                         // 3-2. 데이터가 없으면 (INSERT)
                         postsToSave.add(crawledPost);
-                        postDocumentsToSave.add(PostDocument.from(crawledPost)); // Elasticsearch 추가 대상
+                        // 주석 처리 해준 이유는 새로 크롤링한 데이터는 mysql에 한번 들어가지 않고 바로 엘라스틱으로 저장하는 상태라
+                        // id 값이 없어서 엘라스틱 서치가 자동으로 생성해주는 id(문자열 값을 가진 이상한 id값)를 가지고 저장되기 때문이다.
+//                        postDocumentsToSave.add(PostDocument.from(crawledPost)); // Elasticsearch 추가 대상
                     }
                 }
 
@@ -136,6 +138,11 @@ public class CrawlerJob implements Runnable {
                 }
 
                 // 5. Elasticsearch 배치 저장 (추가된 부분)
+                // MySQL 저장이 완료된 postsToSave 리스트(ID가 채워져 있음)를 사용하여 PostDocument를 생성합니다.
+                List<PostDocument> postDocumentsToSave = postsToSave.stream()
+                        .map(PostDocument::from)
+                        .collect(Collectors.toList());
+
                 for (int i = 0; i < postDocumentsToSave.size(); i += batchSize) {
                     List<PostDocument> batchList = postDocumentsToSave.subList(i, Math.min(i + batchSize, postDocumentsToSave.size()));
                     postDocumentRepository.saveAll(batchList);
