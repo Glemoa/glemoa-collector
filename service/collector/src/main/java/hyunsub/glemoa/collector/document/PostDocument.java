@@ -1,12 +1,15 @@
 package hyunsub.glemoa.collector.document;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import hyunsub.glemoa.collector.entity.Post;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.*;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Getter
 @Builder
@@ -32,9 +35,10 @@ public class PostDocument {
     @Field(type = FieldType.Integer)
     private Integer commentCount;
 
+    // Instant는 “UTC 절대 시각이라서 엘라스틱 서치로 저장할 때 9시간을 더해주지 않는다.
     @Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second_millis, pattern = "uuuu-MM-dd'T'HH:mm:ss.SSSSSS||uuuu-MM-dd'T'HH:mm:ss||uuuu-MM-dd'T'HH:mm")
-//    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS", timezone = "Asia/Seoul")
-    private LocalDateTime createdAt;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private Instant createdAt;
 
     @Field(type = FieldType.Integer)
     private Integer viewCount;
@@ -43,7 +47,7 @@ public class PostDocument {
     private Integer recommendationCount;
 
     // Post 엔티티로부터 PostDocument를 생성하는 헬퍼 메서드
-    public static PostDocument from(hyunsub.glemoa.collector.entity.Post post) {
+    public static PostDocument from(Post post) {
         return PostDocument.builder()
                 .id(post.getId())
                 .title(post.getTitle())
@@ -51,7 +55,7 @@ public class PostDocument {
                 .author(post.getAuthor())
                 .link(post.getLink())
                 .commentCount(post.getCommentCount())
-                .createdAt(post.getCreatedAt())
+                .createdAt(post.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant())
                 .viewCount(post.getViewCount())
                 .recommendationCount(post.getRecommendationCount())
                 .build();
