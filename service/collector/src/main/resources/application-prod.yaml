@@ -3,6 +3,11 @@ spring:
     uris: http://${ELASTICSEARCH_HOST}:9200
     connection-timeout: 10s
     socket-timeout: 30s
+  # jackson 설정은 spring 바로 아래로 이동
+  jackson:
+    time-zone: Asia/Seoul
+    serialization:
+      write-dates-as-timestamps: false
   datasource:
     # MySQL 드라이버 지정
     driver-class-name: com.mysql.cj.jdbc.Driver

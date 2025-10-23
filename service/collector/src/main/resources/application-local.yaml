@@ -1,8 +1,13 @@
 spring:
-  data:
-    elasticsearch:
-      client:
-        nodes: localhost:9200 # Elasticsearch 서버 주소 (환경에 맞게 변경)
+  elasticsearch:
+    uris: http://localhost:9200
+    connection-timeout: 10s
+    socket-timeout: 30s
+  # jackson 설정은 spring 바로 아래로 이동
+  jackson:
+    time-zone: Asia/Seoul
+    serialization:
+      write-dates-as-timestamps: false
   datasource:
     # MySQL 드라이버 지정
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -14,7 +19,7 @@ spring:
     # 데이터 베이스 플랫폼에는 MySQL DB를 사용할 것이기 때문에 이렇게 설정
     database-platform: org.hibernate.dialect.MySQLDialect
     open-in-view: false
-    show-sql: true
+    show-sql: false
     hibernate:
       ddl-auto: none
 

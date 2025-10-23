@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,6 +31,7 @@ public class ElasticsearchSyncService {
     @Transactional(readOnly = true)
     public void onApplicationReady() {
         log.info("Elasticsearch 초기 데이터 동기화 작업을 시작합니다.");
+        log.info("JVM Default Timezone: {}", java.util.TimeZone.getDefault().getID());
 
         long mysqlTotalCount = postRepository.count();
         log.info("mysqlTotalCount : {}", mysqlTotalCount);
@@ -58,7 +60,14 @@ public class ElasticsearchSyncService {
             postPage = postRepository.findAll(pageable);
 
             List<PostDocument> documentsToSave = postPage.getContent().stream()
-                    .map(PostDocument::from)
+                    .map(post -> {
+                        PostDocument doc = PostDocument.from(post);
+                        log.info("MySQL CreatedAt: {}, PostDocument CreatedAt: {}, System Timezone: {}",
+                                post.getCreatedAt(),
+                                doc.getCreatedAt(),
+                                ZoneId.systemDefault());
+                        return doc;
+                    })
                     .collect(Collectors.toList());
 
             if (!documentsToSave.isEmpty()) {
