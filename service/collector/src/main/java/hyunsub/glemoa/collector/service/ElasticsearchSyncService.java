@@ -62,10 +62,10 @@ public class ElasticsearchSyncService {
             List<PostDocument> documentsToSave = postPage.getContent().stream()
                     .map(post -> {
                         PostDocument doc = PostDocument.from(post);
-                        log.info("MySQL CreatedAt: {}, PostDocument CreatedAt: {}, System Timezone: {}",
-                                post.getCreatedAt(),
-                                doc.getCreatedAt(),
-                                ZoneId.systemDefault());
+//                        log.info("MySQL CreatedAt: {}, PostDocument CreatedAt: {}, System Timezone: {}",
+//                                post.getCreatedAt(),
+//                                doc.getCreatedAt(),
+//                                ZoneId.systemDefault());
                         return doc;
                     })
                     .collect(Collectors.toList());

@@ -5,7 +5,7 @@ spring:
     socket-timeout: 30s
   # jackson 설정은 spring 바로 아래로 이동
   jackson:
-    time-zone: Asia/Seoul
+#    time-zone: Asia/Seoul
     serialization:
       write-dates-as-timestamps: false
   datasource:
