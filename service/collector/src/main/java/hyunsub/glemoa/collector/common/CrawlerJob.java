@@ -143,14 +143,6 @@ public class CrawlerJob implements Runnable {
                         .map(PostDocument::from)
                         .collect(Collectors.toList());
 
-                log.info("[{}] Elasticsearch에 저장될 최종 문서 {}개 미리보기: {}",
-                        source,
-                        postDocumentsToSave.size(),
-                        // 리스트 전체를 출력하면 로그가 너무 길어지므로, 처음 몇 개만 출력하도록 설정
-                        postDocumentsToSave.stream()
-                                .limit(10) // 상위 3개만 미리보기
-                                .collect(Collectors.toList())
-                );
 
                 for (int i = 0; i < postDocumentsToSave.size(); i += batchSize) {
                     List<PostDocument> batchList = postDocumentsToSave.subList(i, Math.min(i + batchSize, postDocumentsToSave.size()));
