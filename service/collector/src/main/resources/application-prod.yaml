@@ -108,5 +108,7 @@ glemoa:
 logging:
   config: classpath:logback-prod.xml
   level:
-    # 기본 레벨을 INFO로 유지 (기타 라이브러리)
+    # 1. 모든 외부 라이브러리 및 기본 동작은 INFO 레벨로 설정
     root: INFO
+    # 2. Glemoa Reader 서비스의 핵심 로직만 DEBUG 레벨로 설정
+    hyunsub.glemoa: DEBUG
