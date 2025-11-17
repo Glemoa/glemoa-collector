@@ -12,5 +12,6 @@ import java.util.Optional;
 public interface PostRepository extends JpaRepository<Post, Long> {
     Optional<Post> findTopBySourceOrderByCreatedAtDesc(String source);
     List<Post> findBySourceAndLinkIn(String source, List<String> links);
+    List<Post> findBySourceAndSourceIdIn(String source, List<Long> sourceId);
     boolean existsBySource(String source);
 }
