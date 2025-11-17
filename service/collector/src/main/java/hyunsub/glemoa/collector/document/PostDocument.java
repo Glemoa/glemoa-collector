@@ -14,7 +14,7 @@ import java.time.ZoneId;
 @Getter
 @Builder
 @Document(indexName = "posts") // Elasticsearch 인덱스 이름 지정
-@Setting(settingPath = "classpath:elasticsearch/posts-settings.json") // 이 줄을 추가
+@Setting(settingPath = "elasticsearch/posts-settings.json") // 이 줄을 추가
 public class PostDocument {
 
     @Id // Elasticsearch Document의 ID
