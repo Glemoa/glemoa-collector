@@ -20,13 +20,17 @@ public class PostDocument {
     @Id // Elasticsearch Document의 ID
     private Long id;
 
-    @Field(type = FieldType.Text, analyzer = "korean", searchAnalyzer = "korean") // 한글 분석기 사용
+    @Field(type = FieldType.Text,
+            analyzer = "korean_ngram",
+            searchAnalyzer = "korean_ngram") // 한글 분석기 사용
     private String title;
 
     @Field(type = FieldType.Keyword) // 정확히 일치하는 검색에 사용
     private String source;
 
-    @Field(type = FieldType.Text, analyzer = "korean", searchAnalyzer = "korean") // 한글 분석기 사용
+    @Field(type = FieldType.Text,
+            analyzer = "korean_ngram",
+            searchAnalyzer = "korean_ngram") // 한글 분석기 사용
     private String author;
 
     @Field(type = FieldType.Text) // 링크는 텍스트로 저장

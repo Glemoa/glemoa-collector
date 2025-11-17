@@ -1,15 +1,17 @@
 {
   "analysis": {
     "tokenizer": {
-      "nori_user_dict": {
-        "type": "nori_tokenizer",
-        "decompound_mode": "mixed"
+      "korean_ngram_tokenizer": {
+        "type": "ngram",
+        "min_gram": 2,
+        "max_gram": 3,
+        "token_chars": ["letter", "digit"]
       }
     },
     "analyzer": {
-      "korean": {
+      "korean_ngram": {
         "type": "custom",
-        "tokenizer": "nori_user_dict",
+        "tokenizer": "korean_ngram_tokenizer",
         "filter": ["lowercase"]
       }
     }
