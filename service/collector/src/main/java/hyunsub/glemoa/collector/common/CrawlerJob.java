@@ -78,17 +78,14 @@ public class CrawlerJob implements Runnable {
                 }
 
                 // 1. 크롤링된 데이터에서 sourceId만 추출
-//                List<String> links = crawledPosts.stream().map(Post::getLink).collect(Collectors.toList());
                 List<Long> sourceIds = crawledPosts.stream().map(Post::getSourceId).collect(Collectors.toList());
 
                 // 2. sourceId를 이용해 DB에서 기존 데이터를 한 번에 조회
-//                List<Post> existingPosts = postRepository.findBySourceAndLinkIn(source, links);
                 List<Post> existingPosts = postRepository.findBySourceAndSourceIdIn(source, sourceIds);
                 // (existingValue, newValue) -> existingValue 부분은 "만약 키가 중복되면, 기존 값을 쓰고 새 값은 버려"라는 의미의 규칙
                 Map<Long, Post> existingPostsMap = existingPosts.stream().collect(Collectors.toMap(Post::getSourceId, post -> post, (existingValue, newValue) -> existingValue));
 
                 List<Post> postsToSave = new ArrayList<>();
-//                List<PostDocument> postDocumentsToSave = new ArrayList<>(); // Elasticsearch에 저장할 문서 리스트
                 int updateCount = 0;
 
                 // 3. 크롤링된 데이터를 순회하며 '추가'할 것과 '업데이트'할 것을 분류
