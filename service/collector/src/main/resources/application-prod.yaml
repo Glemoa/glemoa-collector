@@ -1,3 +1,11 @@
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    serviceUrl:
+      # 유레카 서버가 어디에 있는지를 위치 정보를 여기다가 명시해 둔 것이다.
+      defaultZone: http://${EUREKA_SERVER_URL}:8761/eureka/
+
 spring:
   elasticsearch:
     uris: http://${ELASTICSEARCH_HOST}:9200
