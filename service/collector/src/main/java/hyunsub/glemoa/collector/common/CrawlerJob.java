@@ -1,10 +1,13 @@
 package hyunsub.glemoa.collector.common;
 
 import hyunsub.glemoa.collector.document.PostDocument;
+import hyunsub.glemoa.collector.dto.KeywordResDto;
+import hyunsub.glemoa.collector.dto.NotificationReqDto;
 import hyunsub.glemoa.collector.entity.Post;
 import hyunsub.glemoa.collector.repository.PostDocumentRepository;
 import hyunsub.glemoa.collector.repository.PostRepository;
 import hyunsub.glemoa.collector.service.ICrawler;
+import hyunsub.glemoa.collector.service.MemberFeign;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +27,7 @@ public class CrawlerJob implements Runnable {
     private final ICrawler crawler;
     private final PostRepository postRepository;
     private final PostDocumentRepository postDocumentRepository; // 추가: Elasticsearch Repository
+    private final MemberFeign memberFeign;
     private final int initialCrawlDays;
     private final int batchSize;
     private final int lookBackMinutes;
@@ -86,6 +90,7 @@ public class CrawlerJob implements Runnable {
                 Map<Long, Post> existingPostsMap = existingPosts.stream().collect(Collectors.toMap(Post::getSourceId, post -> post, (existingValue, newValue) -> existingValue));
 
                 List<Post> postsToSave = new ArrayList<>();
+                List<Post> newPosts = new ArrayList<>();
                 int updateCount = 0;
 
                 // 3. 크롤링된 데이터를 순회하며 '추가'할 것과 '업데이트'할 것을 분류
@@ -116,9 +121,7 @@ public class CrawlerJob implements Runnable {
                     } else {
                         // 3-2. 데이터가 없으면 (INSERT)
                         postsToSave.add(crawledPost);
-                        // 주석 처리 해준 이유는 새로 크롤링한 데이터는 mysql에 한번 들어가지 않고 바로 엘라스틱으로 저장하는 상태라
-                        // id 값이 없어서 엘라스틱 서치가 자동으로 생성해주는 id(문자열 값을 가진 이상한 id값)를 가지고 저장되기 때문이다.
-//                        postDocumentsToSave.add(PostDocument.from(crawledPost)); // Elasticsearch 추가 대상
+                        newPosts.add(crawledPost);
                     }
                 }
 
@@ -150,6 +153,30 @@ public class CrawlerJob implements Runnable {
                 }
 
                 log.info("[{}] {}개의 신규 게시글 저장 / {}개의 게시글 업데이트 완료.", source, postsToSave.size() - updateCount, updateCount);
+
+                // 키워드별 알림 전송 로직
+                List<KeywordResDto> allKewords = memberFeign.getAllKeyword();
+                List<NotificationReqDto> notifications = new ArrayList<>();
+
+                for(Post post : newPosts) {
+                    for(KeywordResDto keywordResDto : allKewords) {
+                        // 게시글 제목에 키워드가 있다면 알림 대상
+                        if(post.getTitle().contains(keywordResDto.getKeywordName())) {
+                            notifications.add(
+                                    NotificationReqDto.builder()
+                                            .keywordId(keywordResDto.getKeywordId())
+                                            .memberId(keywordResDto.getMemberId())
+                                            .postId(post.getId())
+                                            .build());
+                        }
+                    }
+                }
+                
+                // 알림이 하나라도 있으면 전송
+                if(!notifications.isEmpty()) {
+                    memberFeign.createNotifications(notifications);
+                    log.info("키워드 알림 {} 건 전송 완료", notifications.size());
+                }
 
             } catch (Exception e) {
                 log.error("[{}] 크롤링 작업 중 오류 발생: {}", source, e.getMessage(), e);
