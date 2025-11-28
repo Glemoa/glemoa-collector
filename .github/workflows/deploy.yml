@@ -99,6 +99,8 @@ jobs:
             
             nohup java -jar \
               -Dspring.profiles.active=prod \
+              -Dspring.elasticsearch.username=elastic \
+              -Dspring.elasticsearch.password=${{ secrets.ELASTICSEARCH_PASSWORD }} \
               "$JAR_NAME" > collector.log 2>&1 < /dev/null &
 
             sleep 5
